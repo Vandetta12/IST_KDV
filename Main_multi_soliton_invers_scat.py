@@ -10,7 +10,7 @@ from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_am
                             multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, delta )
 from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
                       X_phys_glob_G_glob_W_glob)
-from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne
+from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur
 
 
 # import des donnée de scattering
@@ -71,14 +71,17 @@ for jj in range(N_pole):
 
 liste_dico = list_dico_plus + list_dico_moin
 
-
+# Visualisation du contour
 visualisation_contour_cercle(liste_dico, z_0_im)
 
-Cplus = C_plus_assambalge_borne(liste_dico, N_interpol, N_interpol_courb)
 
 Cmoin = C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb)
 
 X_glob, G_glob, W_glob = X_phys_glob_G_glob_W_glob(liste_dico, N_interpol, N_interpol_courb)
 
+op, b = Operateur(W_glob, Cmoin, N_interpol)
+
+U = np.linalg.solve(op, b)
+U_phys = U.reshape(-1,2)
 
 

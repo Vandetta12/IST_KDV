@@ -436,6 +436,26 @@ def C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
     C = c_plus - np.eye(N_interpol, dtype=complex)
     return C
 
+def Operateur_bloc_cons(W_global, j,k, c_moin):
+    bloc = delta(j,k) * np.eye(2, dtype=complex) + c_moin[j,k] * W_global[j].T
+    return bloc
 
+def Non_homogène(W_global, c_moin, k):
+    e = np.ones(2, dtype=complex)
+    b = W_global[k].T @ e
+    return b
+
+
+
+def Operateur(W_global, c_moin, N_interpol):
+    op = np.zeros([2 * N_interpol,2 *  N_interpol], dtype=complex)
+    b = np.zeros([N_interpol, 2], dtype=complex)
+    for ii in range(N_interpol):
+        b_scal = Non_homogène(W_global, c_moin, ii)
+        b[ii, :] = b_scal
+        for jj in range(N_interpol):
+            bloc = Operateur_bloc_cons(W_global, ii, jj, c_moin)
+            op[ii * 2 : ii * 2 + 2, jj * 2 : jj * 2 + 2] = bloc
+    return op, b.reshape(-1)
 
 
