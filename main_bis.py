@@ -18,7 +18,7 @@ X_Fourrier = Changement_variables(Y)
 
 # Chebichev  (Fonction rho)
 L = 50                                                  # troncage de la droite pour chebychev
-N_cheb = 3000                                            # Nombre de points de collocation
+N_cheb = 1500                                            # Nombre de points de collocation
 rho_points = 1000
 int_rho = [-10, 10]
 X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0)
