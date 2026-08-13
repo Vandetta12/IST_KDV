@@ -7,7 +7,7 @@ from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
-
+from Fonction_utile import delta
 
 
 

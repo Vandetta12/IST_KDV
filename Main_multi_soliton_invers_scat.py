@@ -7,7 +7,7 @@ from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
 from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa, multi_soliton_scat_data,
-                            multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta )
+                            multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, delta )
 from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
                       X_phys_glob_G_glob_W_glob)
 from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne
