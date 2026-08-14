@@ -8,6 +8,7 @@ from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
 from Fonction_utile import delta
+from Contours import Decupage_U
 
 
 
@@ -462,3 +463,61 @@ def Operateur(W_global, c_moin, N_interpol):
     return op, b.reshape(-1)
 
 
+def Evalulation_Cauchy_une_courbe(z, u_phys, dico):
+    """
+    Evalue la valeur de la transfo de chauchy au point z sur un seul contour
+    :param z: point d'éval
+    :param u_phys: valeur de la fonction sur la courbe
+    :param dico: dictionaire associé à la curbe
+    :return: valeur de la TF de cauchy de la fonction au point z
+    """
+    Mob = dico['Mob']
+    F = dico['F']
+    n = dico['n']
+    A, B, C, D = Mob
+    z_prim = Mobius_general(A, B, C, D, z)              # on place z dans les coordonnée de la courbe
+    z_prim_cercle = Inv_Jacouwski_plus(z_prim)          # Transfo de jacouwski pour arriver sur le cercle
+    C_mat = Psi_matrice(z_prim_cercle, n) @ F
+
+    # correction de déformation
+    infinit = Mobius_inf(A, C)
+    if not np.isinf(infinit):
+        z_inf = Inv_Jacouwski_plus(infinit)
+        C_mat = C_mat - Psi_matrice(z_inf, n) @ F
+
+    return C_mat @ u_phys[:,0], C_mat @ u_phys[:,1]
+
+def Evalulation_Cauchy(z, u_phys, liste_dico):
+    """
+    Evalue la valeur de la transfo de chauchy au point z sur tt les contours
+    :param z: point d'éval
+    :param u_phys: valeur de la fonction sur la courbe
+    :param dico: dictionaire associé à la curbe
+    :return: valeur de la TF de cauchy de la fonction au point z
+    """
+    U_lit = Decupage_U(u_phys, liste_dico)
+    Cu1 = 0
+    Cu2 = 0
+    compteur = 0
+    for dico in liste_dico:
+        Cu1_compteur, Cu2_compteur = Evalulation_Cauchy_une_courbe(z, U_lit[compteur], dico)
+        Cu1 += Cu1_compteur
+        Cu2 += Cu2_compteur
+        compteur += 1
+    return Cu1, Cu2
+
+def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico):
+    """
+    évalue la TF de cauchy sur une grille de points complexe pour un ensemble de courbes
+    :param z_grid: grille de points complexe
+    :param u_phys:valeur de la fonction sur les courbes
+    :param liste_dico:dictionnaire contenant les info sur les courbes
+    :return:
+    """
+    (n_ii, n_jj) = z_grid.shape
+    Cu1_grid = np.zeros([n_ii,n_jj], dtype=complex)
+    Cu2_grid = np.zeros([n_ii,n_jj], dtype=complex)
+    for ii in range(n_ii):
+        for jj in range(n_jj):
+            Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z_grid[ii, jj], u_phys, liste_dico)
+    return Cu1_grid, Cu2_grid
