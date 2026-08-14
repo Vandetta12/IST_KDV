@@ -8,9 +8,9 @@ from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
 from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa, multi_soliton_scat_data,
-                            multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, delta )
+                            multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, Delta )
 from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
-                      X_phys_glob_G_glob_W_glob)
+                      X_phys_glob_G_glob_W_glob_x_glob)
 from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur, Evaluation_cauchy_grid
 
 # Fonctions
@@ -95,8 +95,7 @@ def Visualisation_solution_RHP(U_phys, lst_dico, z_0_list,  save, load, N_grid, 
 # Import de donnée
 N_pole = 3
 N_interpol = 100 * 4 * N_pole
-data = np.load("Scattering_invers_multi_soliton_" + str(N_pole) + "pole_" +
-               str(N_interpol) + ".npz", allow_pickle=True)
+data = np.load("Scattering_invers_multi_soliton_3pole_3600_en__x_5.01_t_0.npz", allow_pickle=True)
 lst_dico = data["dico"]
 X_glob = data["X_glob"]
 U_phys = data["U_phys"]
@@ -135,4 +134,4 @@ N_grid = 100
 fichier = ("Scattering_invers_multi_soliton_" + str(N_pole) + "_pole_" + str(N_interpol)
            + "_visualisation_" + str(N_grid) + ".npz")
 
-Visualisation_solution_RHP(U_phys, lst_dico, z_list, fichier, 1, N_grid, (-3, 3), (-3, 3))
+Visualisation_solution_RHP(U_phys, lst_dico, z_list, fichier, 0, N_grid, (-3, 3), (-3, 3))
