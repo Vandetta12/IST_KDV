@@ -1,6 +1,7 @@
 # Import
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy import dtypes
 from Collocation_chebychev import Cheb_point, Diff_cheb_1
 from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
@@ -10,7 +11,7 @@ from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_am
                             multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, delta )
 from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
                       X_phys_glob_G_glob_W_glob)
-from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur
+from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur, Evaluation_cauchy_grid
 
 # Import de donnée
 N_pole = 3
@@ -37,6 +38,7 @@ plt.grid()
 plt.title("Amplitude de U_1 sur le contour")
 plt.xlabel("Re z")
 plt.ylabel("Im z")
+plt.axis("equal")
 plt.show()
 
 plt.figure(figsize=(7, 6))
@@ -49,4 +51,51 @@ plt.grid()
 plt.title("Amplitude de U_2 sur le contour")
 plt.xlabel("Re z")
 plt.ylabel("Im z")
+plt.axis("equal")
+plt.show()
+
+X, Y = np.meshgrid(np.linspace(-3, 3, 20), np.linspace(-3, 3, 20))
+Z = X + Y * 1j
+
+Phi1, Phi2 = Evaluation_cauchy_grid(Z, U_phys, lst_dico)
+Phi1 += np.ones(len(Phi1), dtypes=complex)
+Phi2 += np.ones(len(Phi2), dtypes=complex)
+module1 = np.abs(Phi1)
+module2 = np.abs(Phi2)
+phase1 = np.angle(Phi1)
+phase2 = np.angle(Phi2)
+
+
+
+plt.figure(figsize=(7, 6))
+plt.pcolormesh(X, Y, module1, cmap="viridis")
+plt.colorbar(label="|Phi1|")
+plt.contourf(X, Y,module1 , colors="white")
+plt.legend()
+plt.grid()
+plt.axis("equal")
+plt.show()
+
+plt.figure(figsize=(7, 6))
+plt.pcolormesh(X, Y, module2, cmap="viridis")
+plt.colorbar(label="|Phi2|")
+plt.contourf(X, Y,module2 , colors="white")
+plt.grid()
+plt.axis("equal")
+plt.show()
+
+plt.figure(figsize=(7, 6))
+plt.pcolormesh(X, Y, phase1, cmap="viridis")
+plt.colorbar(label="arg(Phi1)")
+plt.contourf(X, Y, phase1 , colors="white")
+plt.grid()
+plt.axis("equal")
+plt.show()
+
+plt.figure(figsize=(7, 6))
+plt.pcolormesh(X, Y, phase2, cmap="viridis")
+plt.colorbar(label="arg(Phi2)")
+plt.contourf(X, Y, phase2, colors="white")
+plt.grid()
+plt.axis("equal")
 plt.show()

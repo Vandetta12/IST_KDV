@@ -475,19 +475,20 @@ def Evalulation_Cauchy_une_courbe(z, u_phys, dico):
     F = dico['F']
     n = dico['n']
     A, B, C, D = Mob
-    z_prim = Mobius_general(A, B, C, D, z)              # on place z dans les coordonnée de la courbe
+    z_prim = Mobius_general(A, B, C, D, np.array([z]))              # on place z dans les coordonnée de la courbe
     z_prim_cercle = Inv_Jacouwski_plus(z_prim)          # Transfo de jacouwski pour arriver sur le cercle
     C_mat = Psi_matrice(z_prim_cercle, n) @ F
-
     # correction de déformation
     infinit = Mobius_inf(A, C)
     if not np.isinf(infinit):
-        z_inf = Inv_Jacouwski_plus(infinit)
+        z_inf = Inv_Jacouwski_plus(np.array([infinit]))
         C_mat = C_mat - Psi_matrice(z_inf, n) @ F
 
-    return C_mat @ u_phys[:,0], C_mat @ u_phys[:,1]
+    # C_mat a la forme (1, n), donc le produit matriciel renvoie un
+    # tableau de forme (1,). La grille attend ici un scalaire complexe.
+    return (C_mat @ u_phys[:, 0]).item(), (C_mat @ u_phys[:, 1]).item()
 
-def Evalulation_Cauchy(z, u_phys, liste_dico):
+def Evalulation_Cauchy(z, u_list, liste_dico):
     """
     Evalue la valeur de la transfo de chauchy au point z sur tt les contours
     :param z: point d'éval
@@ -495,12 +496,12 @@ def Evalulation_Cauchy(z, u_phys, liste_dico):
     :param dico: dictionaire associé à la curbe
     :return: valeur de la TF de cauchy de la fonction au point z
     """
-    U_lit = Decupage_U(u_phys, liste_dico)
+
     Cu1 = 0
     Cu2 = 0
     compteur = 0
     for dico in liste_dico:
-        Cu1_compteur, Cu2_compteur = Evalulation_Cauchy_une_courbe(z, U_lit[compteur], dico)
+        Cu1_compteur, Cu2_compteur = Evalulation_Cauchy_une_courbe(z, u_list[compteur], dico)
         Cu1 += Cu1_compteur
         Cu2 += Cu2_compteur
         compteur += 1
@@ -514,10 +515,13 @@ def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico):
     :param liste_dico:dictionnaire contenant les info sur les courbes
     :return:
     """
+    u_list = Decupage_U(u_phys, liste_dico)
     (n_ii, n_jj) = z_grid.shape
     Cu1_grid = np.zeros([n_ii,n_jj], dtype=complex)
     Cu2_grid = np.zeros([n_ii,n_jj], dtype=complex)
     for ii in range(n_ii):
         for jj in range(n_jj):
-            Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z_grid[ii, jj], u_phys, liste_dico)
+            Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z_grid[ii, jj], u_list, liste_dico)
+            #print(ii, jj, " Cu1, Cu2", Cu1_grid[ii, jj], Cu2_grid[ii, jj])
+            print(ii,jj)
     return Cu1_grid, Cu2_grid
