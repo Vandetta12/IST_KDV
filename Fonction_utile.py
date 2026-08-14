@@ -179,6 +179,6 @@ def Theta(z, x, t):
 def delta(i,j):
     if i == j:
         sortie = 1
-    if i != 1:
+    if i != j:
         sortie =0
     return sortie
