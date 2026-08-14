@@ -92,6 +92,7 @@ plt.grid()
 plt.axis("equal")
 plt.show()
 
+
 plt.figure(figsize=(7, 6))
 plt.pcolormesh(X, Y, phase2, cmap="viridis")
 plt.colorbar(label="arg(Phi2)")
