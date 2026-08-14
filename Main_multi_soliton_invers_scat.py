@@ -6,7 +6,9 @@ from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, 
 from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
 from Fonction_utile import multi_soliton_phys
 
-def Scatt_invers_multi_soliton(A, delta, x, t,scattering_data, sauvgarde = False):
+def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
+    print("x :", x)
+    print("t :", t)
     #import
     X_Fourrier = scattering_data["X_Fourrier"]
     X_cheb = scattering_data["X_cheb"]
@@ -22,7 +24,6 @@ def Scatt_invers_multi_soliton(A, delta, x, t,scattering_data, sauvgarde = False
 
     # Def du contour
 
-    N_interpol_courb = 100
     N_interpol = N_interpol_courb * 4 * N_pole
     r = Rayon_cercles(z_0_im)
     list_dico_plus = []
@@ -82,7 +83,7 @@ def Scatt_invers_multi_soliton(A, delta, x, t,scattering_data, sauvgarde = False
     integ_U_x = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
 
     print("int U_x :", integ_U_x)
-    q_x = integ_U_x * 2 * 1j
+    q_x = -integ_U_x * 2 * 1j
     print("q_x :", q_x)
 
     # Verification
@@ -97,6 +98,27 @@ def Scatt_invers_multi_soliton(A, delta, x, t,scattering_data, sauvgarde = False
                  +"_x_" + str(x)+ "_t_" + str(t) + ".npz",
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
+    # test temporaore
+
+    I0 = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
+    I1 = Int_cheb_mult_contour(liste_dico, U_phys_x, 1)
+
+    print("I0 =", I0)
+    print("I1 =", I1)
+
+    print("-2j * I0 =", -2j * I0)
+    print("-4j * I0 =", -4j * I0)
+    print(" 2j * I0 =", 2j * I0)
+    print(" 4j * I0 =", 4j * I0)
+
+    print("-2j * I1 =", -2j * I1)
+    print("-4j * I1 =", -4j * I1)
+    print(" 2j * I1 =", 2j * I1)
+    print(" 4j * I1 =", 4j * I1)
+
+
+
+
     return q_x, U_phys, U_phys_x
 
 # import des donnée de scattering
@@ -104,12 +126,14 @@ A = [2.4 , 1, 8]
 delta = [10, 0, 5]
 scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
 
+# param
+N_interpol_courb = 200
 h = 0.01
 t = 0
 x = 10
 
-q_plus, U_plus, U_plus_x = Scatt_invers_multi_soliton(A, delta, x+h, t, scattering_data)
-q_moin, U_moin, U_moin_x = Scatt_invers_multi_soliton(A, delta, x-h, t, scattering_data)
+q_plus, U_plus, U_plus_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x+h, t, scattering_data)
+q_moin, U_moin, U_moin_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x-h, t, scattering_data)
 
 diff_finie = (U_plus - U_moin) / (2 * h)
 print("diff finie :", np.max(diff_finie))

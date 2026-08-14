@@ -65,7 +65,7 @@ def Add_saut_cercle_to_dico(dico, c_j, z_j, x, t):
         G_x[0, 1] = G_x[0, 1] * -2 * np.abs(z_j)
         W_x[ii, :, :] = G_x
     dico['G'] = G
-    dico['W'] = G[:]
+    dico['W'] = W
     dico['signe']= signe
     dico['z_j'] = np.abs(z_j) * 1j
     dico['c_j'] = c_j
