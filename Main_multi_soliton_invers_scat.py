@@ -98,8 +98,6 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
                  +"_x_" + str(x)+ "_t_" + str(t) + ".npz",
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
-    # test temporaore
-
     I0 = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
     I1 = Int_cheb_mult_contour(liste_dico, U_phys_x, 1)
 
@@ -116,9 +114,7 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     print(" 2j * I1 =", 2j * I1)
     print(" 4j * I1 =", 4j * I1)
 
-
-
-
+    print("q_theorique =", q_theorique[0])
     return q_x, U_phys, U_phys_x
 
 # import des donnée de scattering
@@ -130,7 +126,7 @@ scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_"
 N_interpol_courb = 200
 h = 0.01
 t = 0
-x = 10
+x = 5
 
 q_plus, U_plus, U_plus_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x+h, t, scattering_data)
 q_moin, U_moin, U_moin_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x-h, t, scattering_data)
