@@ -131,7 +131,7 @@ def Int_cheb_un_contour(dico,U_x_j, comp):
     fonc = np.zeros(n, dtype=complex)
     for ii in range(n):
         fonc[ii] = U_x_j[ii, comp] * Mobius_general_der(A_inv, B_inv, C_inv, D_inv, X_cheb[ii])
-    int_j = cheb_int(fonc, F, 1)
+    int_j = cheb_int(fonc, F, 1, 1)
     return int_j
 
 def Int_cheb_mult_contour(list_dico, U_x_phys, comp):
@@ -141,5 +141,5 @@ def Int_cheb_mult_contour(list_dico, U_x_phys, comp):
     for dico in list_dico:
         integral += Int_cheb_un_contour(dico, U_x_list[compteur], comp)
         compteur += 1
-    return integral * (1/(2*1j*np.pi))
+    return -integral * (1/(2*1j*np.pi))
 

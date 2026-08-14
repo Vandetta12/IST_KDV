@@ -190,9 +190,9 @@ def Cheb_int_poid(n):
     return poid
 
 
-def cheb_int(mu,V_inv, L):
+def cheb_int(mu,V_inv, L, n=2):
     N = len(mu)
-    cheb_coef = V_inv @ (mu ** 2)
+    cheb_coef = V_inv @ (mu ** n)
     int = 0
     for ii in range(N):
         int += cheb_coef[ii] * Cheb_int_poid(ii)

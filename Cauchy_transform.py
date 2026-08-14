@@ -382,7 +382,7 @@ def C_gamma_omega_affin(X_cheb_gamma, X_cheb_omega, V_inv, Mob_gamma, Mob_omega)
         corr2[-1, -1] = (np.log(np.abs(Mobius_general_der(Mob_gamma[0], Mob_gamma[1], Mob_gamma[2], Mob_gamma[3], z_d)))
                          / (2 * 1j * np.pi))
     #print("z_g, z_d, p_g, p_d :", z_g, z_d, p_g, p_d)
-    print("con :", con)
+    #print("con :", con)
     C = C_unit_gamma(con, X_cheb_omega, n_gamma, V_inv, Mob) + corr1 + corr2
     return C
 
@@ -415,7 +415,6 @@ def C_plus_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
                 Mob = liste_dico[ii]['Mob']
                 C_ii_ii = C_plus_gamma_gamma_borne(X_cheb, V, F, Mob)
                 ii_indice = (ii * N_interpol_courb, (ii + 1) * N_interpol_courb)
-                print("forme de C+_ii_ii " + str(ii) + " " + str(jj) + " :", C_ii_ii.shape)
                 C[ii_indice[0] : ii_indice[1], ii_indice[0] : ii_indice[1]] = C_ii_ii
             if ii != jj:
                 X_cheb_gamma = liste_dico[ii]['X_cheb']
@@ -426,7 +425,6 @@ def C_plus_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
                 ii_indice = (ii * N_interpol_courb, (ii + 1) * N_interpol_courb)
                 jj_indice = (jj * N_interpol_courb, (jj + 1) * N_interpol_courb)
                 C_ii_jj = C_gamma_omega_borne(X_cheb_gamma, X_cheb_omega, F_gamma, Mob_gamma, Mob_omega)
-                print("forme de C_ii_jj " + str(ii) + " " + str(jj) + " :",C_ii_jj.shape)
                 C[jj_indice[0] : jj_indice[1], ii_indice[0] : ii_indice[1]] = C_ii_jj
 
 
