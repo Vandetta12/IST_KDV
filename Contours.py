@@ -1,7 +1,7 @@
 # import
 import numpy as np
 import matplotlib.pyplot as plt
-from Collocation_chebychev import Cheb_point
+from Collocation_chebychev import Cheb_point, cheb_int
 from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
@@ -26,6 +26,7 @@ def Saut_cercle(c_j,z,z_j, signe, x, t):
     if signe == -1:
         V[1,0] = arg
     return V
+
 
 def Dico_courbe(n, Mob, ori):
     """
@@ -53,14 +54,22 @@ def Add_saut_cercle_to_dico(dico, c_j, z_j, x, t):
     signe = np.sign(z_j)
     G = np.zeros([n, 2, 2], dtype=complex)
     W = np.zeros([n, 2, 2], dtype=complex)
+    W_x = np.zeros([n, 2, 2], dtype=complex)
     for ii in range(n):
         G[ii, :, :] = Saut_cercle(c_j, x_phys[ii], np.abs(z_j) * 1j, signe, x, t)
         W[ii, :, :] = G[ii, :, :] - np.eye(2)
+        G_x = G[ii, :, :].copy()
+        G_x[0,0] = 0
+        G_x[1,1] = 0
+        G_x[1,0] = G_x[1,0] * -2 * np.abs(z_j)
+        G_x[0, 1] = G_x[0, 1] * -2 * np.abs(z_j)
+        W_x[ii, :, :] = G_x
     dico['G'] = G
     dico['W'] = G[:]
     dico['signe']= signe
     dico['z_j'] = np.abs(z_j) * 1j
     dico['c_j'] = c_j
+    dico['W_x']=W_x
     return
 
 def Rayon_cercles(z_j_im):
@@ -86,16 +95,18 @@ def visualisation_contour_cercle(dico_liste, z_list):
     plt.grid()
     plt.show()
 
-def X_phys_glob_G_glob_W_glob(list_dico, N_interpol, N_interpol_courb):
+def X_phys_glob_G_glob_W_glob_x_glob(list_dico, N_interpol, N_interpol_courb):
     X_glob = np.zeros(N_interpol, dtype=complex)
     G_glob = np.zeros([N_interpol, 2, 2], dtype=complex)
     W_glob = np.zeros([N_interpol, 2, 2], dtype=complex)
+    W_x_glob = np.zeros([N_interpol, 2, 2], dtype=complex)
     for ii in range(len(list_dico)):
         ii_indice = (ii * N_interpol_courb, (ii + 1) * N_interpol_courb)
         X_glob[ii_indice[0] : ii_indice[1]] = list_dico[ii]['x_phys']
         G_glob[ii_indice[0]:ii_indice[1], :, :] = list_dico[ii]['G']
         W_glob[ii_indice[0]:ii_indice[1], :, :] = list_dico[ii]['W']
-    return X_glob, G_glob, W_glob
+        W_x_glob[ii_indice[0]:ii_indice[1], :, :] = list_dico[ii]['W_x']
+    return X_glob, G_glob, W_glob, W_x_glob
 
 def Decupage_U(u_phys, liste_dico):
     """
@@ -110,3 +121,25 @@ def Decupage_U(u_phys, liste_dico):
         liste_u.append(u_phys[n * conteur : n * (conteur + 1), :])
         conteur += 1
     return liste_u
+
+def Int_cheb_un_contour(dico,U_x_j, comp):
+    X_cheb = dico['X_cheb']
+    F = dico['F']
+    n = dico['n']
+    Mob = dico['Mob']
+    A_inv, B_inv, C_inv, D_inv = Inv_Mobius_coef(Mob[0], Mob[1], Mob[2], Mob[3])
+    fonc = np.zeros(n, dtype=complex)
+    for ii in range(n):
+        fonc[ii] = U_x_j[ii, comp] * Mobius_general_der(A_inv, B_inv, C_inv, D_inv, X_cheb[ii])
+    int_j = cheb_int(fonc, F, 1)
+    return int_j
+
+def Int_cheb_mult_contour(list_dico, U_x_phys, comp):
+    integral = 0
+    U_x_list = Decupage_U(U_x_phys, list_dico)
+    compteur = 0
+    for dico in list_dico:
+        integral += Int_cheb_un_contour(dico, U_x_list[compteur], comp)
+        compteur += 1
+    return integral * (1/(2*1j*np.pi))
+

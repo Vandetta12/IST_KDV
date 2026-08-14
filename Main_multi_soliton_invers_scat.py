@@ -1,16 +1,10 @@
 # Import
 import numpy as np
-import matplotlib.pyplot as plt
-from Collocation_chebychev import Cheb_point, Diff_cheb_1
-from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
-                         Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
-                         Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
-                         Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
-from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa, multi_soliton_scat_data,
-                            multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta, delta )
-from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
-                      X_phys_glob_G_glob_W_glob)
-from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur
+from Mobius_mpas import (Mobius_arc)
+from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
+                      X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour)
+from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
+from Fonction_utile import multi_soliton_phys
 
 
 # import des donnée de scattering
@@ -76,17 +70,26 @@ visualisation_contour_cercle(liste_dico, z_0_im)
 
 Cmoin = C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb)
 
-X_glob, G_glob, W_glob = X_phys_glob_G_glob_W_glob(liste_dico, N_interpol, N_interpol_courb)
+X_glob, G_glob, W_glob, W_x_glob = X_phys_glob_G_glob_W_glob_x_glob(liste_dico, N_interpol, N_interpol_courb)
 
 op, b = Operateur(W_glob, Cmoin, N_interpol)
 print("op shape :", op.shape)
 print("b shape :", b.shape)
 U = np.linalg.solve(op, b)
 U_phys = U.reshape(-1,2)
+b_x = Non_homogène_deriv_x(W_x_glob, Cmoin, N_interpol, U_phys)
+U_phys_x_plat = np.linalg.solve(op, b_x)
+U_phys_x = U_phys_x_plat.reshape(-1,2)
 
-print("U_phys shape :", U_phys.shape)
+integ_U_x = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
+print("int U_x :", integ_U_x)
+q_x = integ_U_x * 2 * 1j
+print("q_x :", q_x)
+q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
+print("q_theorique :", q_theorique[0])
+print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
 np.savez("Scattering_invers_multi_soliton_" +str(N_pole)+"pole_"+str(N_interpol) + ".npz" ,
-         A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, z_list=z_0_im)
+         A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
 

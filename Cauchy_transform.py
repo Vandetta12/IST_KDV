@@ -7,7 +7,7 @@ from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
-from Fonction_utile import delta
+from Fonction_utile import Delta
 from Contours import Decupage_U
 
 
@@ -441,21 +441,32 @@ def C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
 
 
 def Operateur_bloc_cons(W_global, j,k, c_moin):
-    bloc = delta(j,k) * np.eye(2, dtype=complex) - c_moin[j,k] * W_global[j].T
+    bloc = Delta(j,k) * np.eye(2, dtype=complex) - c_moin[j,k] * W_global[j].T
     return bloc
 
-def Non_homogène(W_global, c_moin, k):
+def Non_homogène(W_global, k):
     e = np.ones(2, dtype=complex)
     b = W_global[k].T @ e
     return b
 
 
+def Non_homogène_deriv_x(W_x_global, c_moin, N_interpol,U_phys):
+    Mat = np.zeros([2 * N_interpol,2 *  N_interpol], dtype=complex)
+    terme1 = np.zeros([N_interpol, 2], dtype=complex)
+    U_phys = U_phys.reshape(-1)
+    for ii in range(N_interpol):
+        terme1[ii,:] = Non_homogène(W_x_global, ii)
+        for jj in range(N_interpol):
+            bloc = c_moin[ii,jj] * W_x_global[ii].T
+            Mat[ii * 2 : ii * 2 + 2, jj * 2 : jj * 2 + 2] = bloc
+    b = terme1.reshape(-1) + (Mat @ U_phys)
+    return b
 
 def Operateur(W_global, c_moin, N_interpol):
     op = np.zeros([2 * N_interpol,2 *  N_interpol], dtype=complex)
     b = np.zeros([N_interpol, 2], dtype=complex)
     for ii in range(N_interpol):
-        b_scal = Non_homogène(W_global, c_moin, ii)
+        b_scal = Non_homogène(W_global, ii)
         b[ii, :] = b_scal
         for jj in range(N_interpol):
             bloc = Operateur_bloc_cons(W_global, ii, jj, c_moin)

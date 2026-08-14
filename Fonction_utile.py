@@ -176,7 +176,7 @@ def Theta(z, x, t):
     theta = 2 * 1j * z * x + 8 * 1j * (z ** 3) * t
     return theta
 
-def delta(i,j):
+def Delta(i,j):
     if i == j:
         sortie = 1
     if i != j:
