@@ -65,7 +65,6 @@ for jj in range(N_pole):
     Add_saut_cercle_to_dico(dico1, C_list[jj], -z_0_im[jj] , x, t)
     dico2 = Dico_courbe(N_interpol_courb, Mob2, 1)
     Add_saut_cercle_to_dico(dico2, C_list[jj], -z_0_im[jj] , x, t)
-    print("dico1 G 5:", dico1['G'][5,:,:])
     list_dico_moin.append(dico1)
     list_dico_moin.append(dico2)
 
@@ -80,8 +79,12 @@ Cmoin = C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb)
 X_glob, G_glob, W_glob = X_phys_glob_G_glob_W_glob(liste_dico, N_interpol, N_interpol_courb)
 
 op, b = Operateur(W_glob, Cmoin, N_interpol)
-
+print("op shape :", op.shape)
+print("b shape :", b.shape)
 U = np.linalg.solve(op, b)
 U_phys = U.reshape(-1,2)
 
+print("U_phys shape :", U_phys.shape)
 
+np.savez("Scattering_invers_multi_soliton_" +str(N_pole)+"pole_"+str(N_interpol) + ".npz" ,
+         A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys)
