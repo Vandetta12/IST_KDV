@@ -1,6 +1,8 @@
 # import
 import numpy as np
 import matplotlib.pyplot as plt
+
+from Cauchy_transform import Psi_matrice
 from Collocation_chebychev import Cheb_point
 from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
@@ -96,3 +98,76 @@ def X_phys_glob_G_glob_W_glob(list_dico, N_interpol, N_interpol_courb):
         G_glob[ii_indice[0]:ii_indice[1], :, :] = list_dico[ii]['G']
         W_glob[ii_indice[0]:ii_indice[1], :, :] = list_dico[ii]['W']
     return X_glob, G_glob, W_glob
+
+def Decupage_U(u_phys, liste_dico):
+    """
+    Découpe U par contoure
+    :param liste_dico:
+    :return: une lise de array
+    """
+    liste_u = []
+    conteur = 0
+    for dico in liste_dico:
+        n = dico['n']
+        liste_u.append(u_phys[n * conteur : n * (conteur + 1), :])
+        conteur += 1
+    return liste_u
+
+def Evalulation_Cauchy_une_courbe(z, u_phys, dico):
+    """
+    Evalue la valeur de la transfo de chauchy au point z sur un seul contour
+    :param z: point d'éval
+    :param u_phys: valeur de la fonction sur la courbe
+    :param dico: dictionaire associé à la curbe
+    :return: valeur de la TF de cauchy de la fonction au point z
+    """
+    Mob = dico['Mob']
+    F = dico['F']
+    n = dico['n']
+    A, B, C, D = Mob
+    z_prim = Mobius_general(A, B, C, D, z)              # on place z dans les coordonnée de la courbe
+    z_prim_cercle = Inv_Jacouwski_plus(z_prim)          # Transfo de jacouwski pour arriver sur le cercle
+    C = Psi_matrice(z_prim_cercle, n) @ F
+
+    # correction de déformation
+    infinit = Mobius_inf(A, C)
+    if not np.isinf(infinit):
+        z_inf = Inv_Jacouwski_plus(infinit)
+        C = C - Psi_matrice(z_inf, n) @ F
+
+    return C @ u_phys[:,0], C @ u_phys[:,1]
+
+def Evalulation_Cauchy(z, u_phys, liste_dico):
+    """
+    Evalue la valeur de la transfo de chauchy au point z sur tt les contours
+    :param z: point d'éval
+    :param u_phys: valeur de la fonction sur la courbe
+    :param dico: dictionaire associé à la curbe
+    :return: valeur de la TF de cauchy de la fonction au point z
+    """
+    U_lit = Decupage_U(u_phys, liste_dico)
+    Cu1 = 0
+    Cu2 = 0
+    compteur = 0
+    for dico in liste_dico:
+        Cu1_compteur, Cu2_compteur = Evalulation_Cauchy_une_courbe(z, U_lit[compteur], dico)
+        Cu1 += Cu1_compteur
+        Cu2 += Cu2_compteur
+        compteur += 1
+    return Cu1, Cu2
+
+def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico):
+    """
+    évalue la TF de cauchy sur une grille de points complexe pour un ensemble de courbes
+    :param z_grid: grille de points complexe
+    :param u_phys:valeur de la fonction sur les courbes
+    :param liste_dico:dictionnaire contenant les info sur les courbes
+    :return:
+    """
+    (n_ii, n_jj) = z_grid.shape()
+    Cu1_grid = np.zeros([n_ii,n_jj], dtype=complex)
+    Cu2_grid = np.zeros([n_ii,n_jj], dtype=complex)
+    for ii in range(n_ii):
+        for jj in range(n_jj):
+            Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z_grid[ii, jj], u_phys, liste_dico)
+    return Cu1_grid, Cu2_grid

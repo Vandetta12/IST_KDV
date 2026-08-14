@@ -436,8 +436,11 @@ def C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
     C = c_plus - np.eye(N_interpol, dtype=complex)
     return C
 
+# Assamblage final de l'opérateur discretiser sur les branche du RHP ici, pour des cercle autour des singularitées
+
+
 def Operateur_bloc_cons(W_global, j,k, c_moin):
-    bloc = delta(j,k) * np.eye(2, dtype=complex) + c_moin[j,k] * W_global[j].T
+    bloc = delta(j,k) * np.eye(2, dtype=complex) - c_moin[j,k] * W_global[j].T
     return bloc
 
 def Non_homogène(W_global, c_moin, k):

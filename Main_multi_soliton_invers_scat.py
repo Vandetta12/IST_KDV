@@ -88,3 +88,5 @@ print("U_phys shape :", U_phys.shape)
 
 np.savez("Scattering_invers_multi_soliton_" +str(N_pole)+"pole_"+str(N_interpol) + ".npz" ,
          A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys)
+
+
