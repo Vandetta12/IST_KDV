@@ -115,17 +115,18 @@ delta = [10, 0, 5]
 scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
 
 # param
-N_interpol_courb = 400
+N_interpol_courb = 300
 h = 0.01
 t = 0
 x = 5
 
 q_plus, U_plus, U_plus_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x+h, t, scattering_data)
 q_moin, U_moin, U_moin_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x-h, t, scattering_data)
+q0, U_0, U_0_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t, scattering_data)
 
 diff_finie = (U_plus - U_moin) / (2 * h)
 print("diff finie :", np.max(diff_finie))
-print("erreur diff finie :", np.max(np.abs(diff_finie - U_plus_x)))
+print("erreur diff finie :", np.max(np.abs(diff_finie - U_0_x)))
 
 
 
