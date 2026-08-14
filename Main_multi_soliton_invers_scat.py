@@ -34,7 +34,7 @@ x, t = 10 , 0
 
 # Def du contour
 
-N_interpol_courb = 200
+N_interpol_courb = 100
 N_interpol = N_interpol_courb * 4 * N_pole
 r = Rayon_cercles(z_0_im)
 list_dico_plus = []
@@ -87,6 +87,6 @@ U_phys = U.reshape(-1,2)
 print("U_phys shape :", U_phys.shape)
 
 np.savez("Scattering_invers_multi_soliton_" +str(N_pole)+"pole_"+str(N_interpol) + ".npz" ,
-         A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys)
+         A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, z_list=z_0_im)
 
 

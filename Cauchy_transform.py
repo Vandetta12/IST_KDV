@@ -476,17 +476,17 @@ def Evalulation_Cauchy_une_courbe(z, u_phys, dico):
     n = dico['n']
     A, B, C, D = Mob
     z_prim = Mobius_general(A, B, C, D, np.array([z]))              # on place z dans les coordonnée de la courbe
-    z_prim_cercle = Inv_Jacouwski_plus(z_prim)          # Transfo de jacouwski pour arriver sur le cercle
+    z_prim_cercle = np.array([Inv_Jacouwski_plus(z_prim)], dtype=complex)          # Transfo de jacouwski pour arriver sur le cercle
     C_mat = Psi_matrice(z_prim_cercle, n) @ F
     # correction de déformation
     infinit = Mobius_inf(A, C)
     if not np.isinf(infinit):
-        z_inf = Inv_Jacouwski_plus(np.array([infinit]))
+        z_inf = np.array([Inv_Jacouwski_plus(np.array([infinit]))], dtype=complex)
         C_mat = C_mat - Psi_matrice(z_inf, n) @ F
 
     # C_mat a la forme (1, n), donc le produit matriciel renvoie un
     # tableau de forme (1,). La grille attend ici un scalaire complexe.
-    return (C_mat @ u_phys[:, 0]).item(), (C_mat @ u_phys[:, 1]).item()
+    return (C_mat @ u_phys[:, 0])[0], (C_mat @ u_phys[:, 1])[0]
 
 def Evalulation_Cauchy(z, u_list, liste_dico):
     """
@@ -507,7 +507,19 @@ def Evalulation_Cauchy(z, u_list, liste_dico):
         compteur += 1
     return Cu1, Cu2
 
-def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico):
+def distance_contour(z, list_dico):
+    liste_dist = []
+    for dico in list_dico:
+        n = dico["n"]
+        x_phys = dico["x_phys"]
+        for ii in range(n):
+            dist = np.abs(z - x_phys[ii])
+            liste_dist.append(dist)
+    minimum = min(liste_dist)
+    return minimum
+
+
+def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico, dist_min_cont):
     """
     évalue la TF de cauchy sur une grille de points complexe pour un ensemble de courbes
     :param z_grid: grille de points complexe
@@ -521,7 +533,12 @@ def Evaluation_cauchy_grid(z_grid, u_phys, liste_dico):
     Cu2_grid = np.zeros([n_ii,n_jj], dtype=complex)
     for ii in range(n_ii):
         for jj in range(n_jj):
-            Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z_grid[ii, jj], u_list, liste_dico)
-            #print(ii, jj, " Cu1, Cu2", Cu1_grid[ii, jj], Cu2_grid[ii, jj])
+            z = z_grid[ii, jj]
+            d = distance_contour(z, liste_dico)
+            if d >= dist_min_cont:
+                Cu1_grid[ii, jj], Cu2_grid[ii, jj] = Evalulation_Cauchy(z, u_list, liste_dico)
+            if d < dist_min_cont:
+                Cu1_grid[ii, jj], Cu2_grid[ii, jj] = np.nan, np.nan
+                print("trop proche !")
             print(ii,jj)
     return Cu1_grid, Cu2_grid

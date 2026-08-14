@@ -13,18 +13,94 @@ from Contours import (Dico_courbe, Saut_cercle, Rayon_cercles, visualisation_con
                       X_phys_glob_G_glob_W_glob)
 from Cauchy_transform import C_plus_assambalge_borne, C_moin_assambalge_borne, Operateur, Evaluation_cauchy_grid
 
+# Fonctions
+def Visualisation_solution_RHP(U_phys, lst_dico, z_0_list,  save, load, N_grid, x_lim, y_lim):
+    if load == 0:
+
+        X, Y = np.meshgrid(np.linspace(x_lim[0], x_lim[1], N_grid), np.linspace(y_lim[0], y_lim[1], N_grid))
+        Z = X + Y * 1j
+        dist = 10 ** (-3)
+        Phi1, Phi2 = Evaluation_cauchy_grid(Z, U_phys, lst_dico, dist)
+
+        np.savez(save, dico=lst_dico, U_phys=U_phys, Z=Z, Real_grid=(X, Y), phy=(Phi1, Phi2), N_grid=N_grid)
+
+    if load == 1:
+        data = np.load(save, allow_pickle=True)
+        lst_dico = data["dico"]
+        U_phys = data["U_phys"]
+        Z = data["Z"]
+        X , Y = data["Real_grid"][0] , data["Real_grid"][1]
+        Phi1, Phi2 = data["phy"][0] , data["phy"][1]
+        N_grid = data["N_grid"]
+
+    else :
+        print("Erreur : choisissez 1 ou 0, en fonction de si vous voulez charger un fichier ou non.")
+
+    Phi1 += 1
+    Phi2 += 1
+    module1 = np.abs(Phi1)
+    module2 = np.abs(Phi2)
+    phase1 = np.angle(Phi1)
+    phase2 = np.angle(Phi2)
+
+    plt.figure(figsize=(7, 6))
+    plt.pcolormesh(X, Y, module1, cmap="viridis", shading="auto")
+    plt.scatter([0,0,0], z_0_list, c="red", s=12)
+    plt.scatter([0,0,0], -z_0_list, c="red", s=12)
+    plt.colorbar(label="|Phi1|")
+    plt.contour(X, Y, module1, colors="white")
+
+    plt.grid()
+    plt.axis("equal")
+    plt.show()
+
+    plt.figure(figsize=(7, 6))
+    plt.pcolormesh(X, Y, module2, cmap="viridis", shading="auto")
+    plt.scatter([0,0,0], z_0_list, c="red", s=12)
+    plt.scatter([0,0,0], -z_0_list, c="red", s=12)
+    plt.colorbar(label="|Phi2|")
+    plt.contour(X, Y, module2, colors="white")
+    plt.grid()
+    plt.axis("equal")
+    plt.show()
+
+    plt.figure(figsize=(7, 6))
+    plt.pcolormesh(X, Y, phase1, cmap="twilight", shading="auto")
+    plt.scatter([0,0,0], z_0_list, c="red", s=12)
+    plt.scatter([0,0,0], -z_0_list, c="red", s=12)
+    plt.colorbar(label="arg(Phi1)")
+    plt.contour(X, Y, phase1, colors="white")
+    plt.grid()
+    plt.axis("equal")
+    plt.show()
+
+    plt.figure(figsize=(7, 6))
+    plt.pcolormesh(X, Y, phase2, cmap="twilight", shading="auto")
+    plt.scatter([0,0,0], z_0_list, c="red", s=12)
+    plt.scatter([0,0,0], -z_0_list, c="red", s=12)
+    plt.colorbar(label="arg(Phi2)")
+    plt.contour(X, Y, phase2, colors="white")
+    plt.grid()
+    plt.axis("equal")
+    plt.show()
+
+    return
+
+
+
+
+
+
+
 # Import de donnée
 N_pole = 3
-N_interpol = 200 * 4 * N_pole
-# `dico` contient des dictionnaires : NumPy l'enregistre donc comme un
-# tableau d'objets Python et nécessite explicitement l'autorisation du pickle.
-# Ne l'utiliser que pour un fichier `.npz` produit par ce projet et de source
-# fiable, car le pickle peut exécuter du code lors du chargement.
+N_interpol = 100 * 4 * N_pole
 data = np.load("Scattering_invers_multi_soliton_" + str(N_pole) + "pole_" +
                str(N_interpol) + ".npz", allow_pickle=True)
 lst_dico = data["dico"]
 X_glob = data["X_glob"]
 U_phys = data["U_phys"]
+z_list = data["z_list"]
 
 # Visualisation
 
@@ -54,49 +130,9 @@ plt.ylabel("Im z")
 plt.axis("equal")
 plt.show()
 
-X, Y = np.meshgrid(np.linspace(-3, 3, 20), np.linspace(-3, 3, 20))
-Z = X + Y * 1j
+N_grid = 100
 
-Phi1, Phi2 = Evaluation_cauchy_grid(Z, U_phys, lst_dico)
-Phi1 += np.ones(len(Phi1), dtypes=complex)
-Phi2 += np.ones(len(Phi2), dtypes=complex)
-module1 = np.abs(Phi1)
-module2 = np.abs(Phi2)
-phase1 = np.angle(Phi1)
-phase2 = np.angle(Phi2)
+fichier = ("Scattering_invers_multi_soliton_" + str(N_pole) + "_pole_" + str(N_interpol)
+           + "_visualisation_" + str(N_grid) + ".npz")
 
-
-
-plt.figure(figsize=(7, 6))
-plt.pcolormesh(X, Y, module1, cmap="viridis")
-plt.colorbar(label="|Phi1|")
-plt.contourf(X, Y,module1 , colors="white")
-plt.legend()
-plt.grid()
-plt.axis("equal")
-plt.show()
-
-plt.figure(figsize=(7, 6))
-plt.pcolormesh(X, Y, module2, cmap="viridis")
-plt.colorbar(label="|Phi2|")
-plt.contourf(X, Y,module2 , colors="white")
-plt.grid()
-plt.axis("equal")
-plt.show()
-
-plt.figure(figsize=(7, 6))
-plt.pcolormesh(X, Y, phase1, cmap="viridis")
-plt.colorbar(label="arg(Phi1)")
-plt.contourf(X, Y, phase1 , colors="white")
-plt.grid()
-plt.axis("equal")
-plt.show()
-
-
-plt.figure(figsize=(7, 6))
-plt.pcolormesh(X, Y, phase2, cmap="viridis")
-plt.colorbar(label="arg(Phi2)")
-plt.contourf(X, Y, phase2, colors="white")
-plt.grid()
-plt.axis("equal")
-plt.show()
+Visualisation_solution_RHP(U_phys, lst_dico, z_list, fichier, 1, N_grid, (-3, 3), (-3, 3))
