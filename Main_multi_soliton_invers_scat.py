@@ -4,24 +4,29 @@ from Mobius_mpas import (Mobius_arc)
 from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
                       X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour)
 from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
-from Fonction_utile import multi_soliton_phys
+from Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
 
 def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
     print("x :", x)
     print("t :", t)
     #import
-    X_Fourrier = scattering_data["X_Fourrier"]
-    X_cheb = scattering_data["X_cheb"]
-    L = scattering_data["L"]
     rho_points = scattering_data["rho_points"]
     int_rho = scattering_data["int_rho"]
-    Q_cheb = scattering_data["Q_cheb"]
-    rho_array = scattering_data["rho_array"]
     z_0_im = scattering_data["z_0_im"]
-    C_list = scattering_data["C_list"]
     N_pole = len(z_0_im)
-    S = np.linspace(int_rho[0], int_rho[1], rho_points)
+    z_0_im_alt = []
+    C_list_alt = []
 
+    for ii in range(N_pole):
+        z_0, C_0 = conv_amp_defa_to_pole_norm(A[ii], delta[ii])
+        z_0_im_alt.append(z_0)
+        C_list_alt.append(C_0 * 1j)
+    C_list = scattering_data["C_list"]
+    print("C_list, C_list_alt :", C_list, C_list_alt)
+    print("z_0_im, z_0_im_alt :", z_0_im, z_0_im_alt)
+
+    C_list = C_list_alt.copy()
+    z_0_im = z_0_im_alt.copy()
     # Def du contour
 
     N_interpol = N_interpol_courb * 4 * N_pole
@@ -98,32 +103,19 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
                  +"_x_" + str(x)+ "_t_" + str(t) + ".npz",
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
-    I0 = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
-    I1 = Int_cheb_mult_contour(liste_dico, U_phys_x, 1)
 
-    print("I0 =", I0)
-    print("I1 =", I1)
 
-    print("-2j * I0 =", -2j * I0)
-    print("-4j * I0 =", -4j * I0)
-    print(" 2j * I0 =", 2j * I0)
-    print(" 4j * I0 =", 4j * I0)
 
-    print("-2j * I1 =", -2j * I1)
-    print("-4j * I1 =", -4j * I1)
-    print(" 2j * I1 =", 2j * I1)
-    print(" 4j * I1 =", 4j * I1)
-
-    print("q_theorique =", q_theorique[0])
     return q_x, U_phys, U_phys_x
 
 # import des donnée de scattering
 A = [2.4 , 1, 8]
 delta = [10, 0, 5]
+
 scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
 
 # param
-N_interpol_courb = 200
+N_interpol_courb = 400
 h = 0.01
 t = 0
 x = 5
