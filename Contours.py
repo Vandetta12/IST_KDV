@@ -18,6 +18,7 @@ from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_am
 
 def Saut_cercle(c_j,z,z_j, signe, x, t):
     V = np.zeros([2,2], dtype=complex)
+
     arg = (-c_j * np.exp(Theta(z_j,x,t))) / (z - (signe * z_j))
     V[0,0] = 1
     V[1,1] = 1

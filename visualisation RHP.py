@@ -134,4 +134,4 @@ N_grid = 100
 fichier = ("Scattering_invers_multi_soliton_" + str(N_pole) + "_pole_" + str(N_interpol)
            + "_visualisation_" + str(N_grid) + ".npz")
 
-Visualisation_solution_RHP(U_phys, lst_dico, z_list, fichier, 0, N_grid, (-3, 3), (-3, 3))
+Visualisation_solution_RHP(U_phys, lst_dico, z_list, fichier, 1, N_grid, (-3, 3), (-3, 3))

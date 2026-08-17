@@ -5,6 +5,7 @@ from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, 
                       X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour)
 from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
 from Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
+from matplotlib import pyplot as plt
 
 def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
     print("x :", x)
@@ -22,8 +23,8 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
         z_0_im_alt.append(z_0)
         C_list_alt.append(C_0 * 1j)
     C_list = scattering_data["C_list"]
-    print("C_list, C_list_alt :", C_list, C_list_alt)
-    print("z_0_im, z_0_im_alt :", z_0_im, z_0_im_alt)
+    #print("C_list, C_list_alt :", C_list, C_list_alt)
+    #print("z_0_im, z_0_im_alt :", z_0_im, z_0_im_alt)
 
     C_list = C_list_alt.copy()
     z_0_im = z_0_im_alt.copy()
@@ -63,7 +64,7 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     liste_dico = list_dico_plus + list_dico_moin
 
     # Visualisation du contour
-    visualisation_contour_cercle(liste_dico, z_0_im)
+    # visualisation_contour_cercle(liste_dico, z_0_im)
 
     # Operateur de Cauchy
     Cmoin = C_moin_assambalge_borne(liste_dico, N_interpol, N_interpol_courb)
@@ -87,14 +88,14 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     # Reconstruction de la solutio en x,t par intégration sur le contour
     integ_U_x = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
 
-    print("int U_x :", integ_U_x)
+    #print("int U_x :", integ_U_x)
     q_x = -integ_U_x * 2 * 1j
-    print("q_x :", q_x)
+    #print("q_x :", q_x)
 
     # Verification
     q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
-    print("q_theorique :", q_theorique[0])
-    print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
+    #print("q_theorique :", q_theorique[0])
+    #print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
     # Sauvgarde
     if sauvgarde == True:
@@ -115,18 +116,41 @@ delta = [10, 0, 5]
 scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
 
 # param
-N_interpol_courb = 300
-h = 0.01
-t = 0
-x = 5
+N_interpol_courb = 100
+T, X = np.meshgrid(np.linspace(0, 10, 10), np.linspace(0, 100, 100))
+Q = np.zeros(T.shape, dtype=complex)
+for ii in range(T.shape[0]):
+    for jj in range(T.shape[1]):
+        Q[ii,jj], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, X[ii, jj], T[ii,jj], scattering_data)
+        print(ii,jj)
 
-q_plus, U_plus, U_plus_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x+h, t, scattering_data)
-q_moin, U_moin, U_moin_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x-h, t, scattering_data)
-q0, U_0, U_0_x = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t, scattering_data)
+np.savez("Q_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "_Grid_" + str(T.shape) + ".npz", Q=Q, X=X, T=T)
 
-diff_finie = (U_plus - U_moin) / (2 * h)
-print("diff finie :", np.max(diff_finie))
-print("erreur diff finie :", np.max(np.abs(diff_finie - U_0_x)))
+
+plt.pcolormesh(T, X, np.real(Q), cmap="plasma", shading="auto")
+plt.contour(T, X, np.real(Q), colors="white")
+plt.colorbar(label="Q")
+plt.xlabel("t")
+plt.ylabel("x")
+plt.show()
+
+Q_theorique = multi_soliton_phys(A,delta, X,T)
+
+plt.pcolormesh(T, X, Q_theorique, cmap="plasma", shading="auto")
+plt.contour(T, X, Q_theorique, colors="white")
+plt.colorbar(label="Q_theorique")
+plt.xlabel("t")
+plt.ylabel("x")
+plt.show()
+
+Err= np.abs(Q_theorique - Q)
+
+plt.pcolormesh(T, X, Err, cmap="plasma", shading="auto")
+plt.contour(T, X, Err, colors="white")
+plt.colorbar(label="Erreur")
+plt.xlabel("t")
+plt.ylabel("x")
+plt.show()
 
 
 
