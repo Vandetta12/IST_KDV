@@ -17,14 +17,13 @@ n, Y = grille(N_Fourrier, M)
 X_Fourrier = Changement_variables(Y)
 
 # Chebichev  (Fonction rho)
-L = 50                                                 # troncage de la droite pour chebychev
-N_cheb = 1400                                          # Nombre de points de collocation
+L = 30                                                 # troncage de la droite pour chebychev
+N_cheb = 201                                          # Nombre de points de collocation
 rho_points = 10
 int_rho = [-5, 5]
 X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, complex = False)
 D = Diff_cheb_1(N_cheb)
-print("Xcheb", X_cheb)
-print("D :", np.shape(D))
+
 
 #######################################################################################################"
 

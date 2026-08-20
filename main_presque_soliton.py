@@ -22,7 +22,7 @@ L = 10                                                  # troncage de la droite 
 N_cheb = 201                                            # Nombre de points de collocation
 rho_points = 200
 int_rho = [-5, 5]
-X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 2, complex = False)
+X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, complex = False)
 D = Diff_cheb_1(N_cheb)
 print("centre :", X_cheb[N_cheb//2])
 #######################################################################################################"

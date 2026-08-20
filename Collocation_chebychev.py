@@ -82,22 +82,7 @@ def system(D_1, D_2, U, u, s):
 
     return M1, M2, b_gauche, b_droite
 
-def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
 
-    #j0 = N // 2
-    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
-    f_m = m2 * np.exp(-1j * X_cheb * s)
-
-    f_p_bar_d = f_p_bar[j0:]
-    f_m_g = f_m[:j0]
-
-    mu = []
-    for aa in range(len(X_cheb)):
-        if aa < j0 :
-            mu.append(f_m_g[aa])
-        else :
-            mu.append(f_p_bar_d[aa - j0])
-    return np.array(mu)
 
 def visu_mu(mu, X_cheb, m1, m2):
 
@@ -168,8 +153,6 @@ def rho(N, D_1, D_2, U, u, s):
     dm2m_0 = dm2m[j0]
 
 
-
-
     # Coefficients a(s) et b(s)
     b_coef = -(m1m_0 * dm2_0 - dm1m_0 * m2_0)                      # déja simplifier
 
@@ -182,9 +165,25 @@ def rho(N, D_1, D_2, U, u, s):
 
     return  rho
 
+def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
+
+    #j0 = N // 2
+    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
+    f_m = m2 * np.exp(-1j * X_cheb * s)
+
+    f_p_bar_d = f_p_bar[j0:]
+    f_m_g = f_m[:j0]
+
+    mu = []
+    for aa in range(len(X_cheb)):
+        if aa < j0 :
+            mu.append(f_m_g[aa])
+        else :
+            mu.append(f_p_bar_d[aa - j0])
+    return np.array(mu)
+
+
 def Cheb_int_poid(n):
-    if n == 0:
-        poid = 0
     if n % 2 ==0 :
         poid = 2 /(1- (n ** 2))
     else :
@@ -192,7 +191,7 @@ def Cheb_int_poid(n):
     return poid
 
 
-def cheb_int(mu,V_inv, L, n=2):
+def cheb_int(mu,V_inv, L, n=1):
     N = len(mu)
     cheb_coef = V_inv @ (mu ** n)
     int = 0
@@ -200,10 +199,43 @@ def cheb_int(mu,V_inv, L, n=2):
         int += cheb_coef[ii] * Cheb_int_poid(ii)
     return L * int
 
+def Cheb_int_morceaux(mu, X_cheb, j_r):
+    mu_g = mu[:j_r+1]
+    mu_d = mu[j_r:]
+    X_g = X_cheb[:j_r+1]
+    X_d = X_cheb[j_r:]
+    a_g, b_g = X_g[0], X_g[-1]
+    a_d, b_d = X_d[0], X_d[-1]
+    Centre_g = (b_g + a_g) / 2
+    L_g = (b_g - a_g) / 2
+    Centre_d = (a_d + b_d) / 2
+    L_d = (b_d - a_d) / 2
+
+    xi_g = (X_g - Centre_g) / (L_g)
+    xi_d = (X_d - Centre_d) / (L_d)
+
+    V_g = chebvander(xi_g, len(xi_g) -1)
+    V_d = chebvander(xi_d, len(xi_d) - 1)
+
+    coef_g = np.linalg.inv(V_g) @ (mu_g ** 2)
+    coef_d = np.linalg.inv(V_d) @ (mu_d ** 2)
+
+    int_g = 0.0 + 0.0j
+    for ii in range(len(mu_g)):
+        int_g += coef_g[ii] * Cheb_int_poid(ii)
+
+    int_d = 0.0 + 0.0j
+    for jj in range(len(mu_d)):
+        int_d += coef_d[jj] * Cheb_int_poid(jj)
+
+    Int_g = L_g * int_g
+    Int_d = L_d * int_d
+    return Int_g + Int_d
 
 
 def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     M1, M2, b_g, b_d = system(D_1, D_2, U, u, s)
+
 
     m1 = np.linalg.lstsq(M1, b_g, rcond=None)[0] + 1
     m2 = np.linalg.lstsq(M2, b_d, rcond=None)[0] + 1
@@ -226,9 +258,11 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     #############
     visu_mu(mu, X_cheb, m1, m2)
 
-    I = cheb_int(mu, V_inv, L)
+    I = cheb_int(mu, V_inv, L, n=2)
+    #I = Cheb_int_morceaux(mu, X_cheb, j0)
 
     #I = np.trapezoid(mu ** 2, X_cheb)
+
 
     return b_coef, I
 
