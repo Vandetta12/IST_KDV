@@ -173,7 +173,7 @@ def Theta(z, x, t):
     :param t: point physique temporelle t sur la droite réelle ou on veux évaluer le potentielle
     :return: theta(z,x,t)
     """
-    theta = 2 * 1j * z * x + 8 * 1j * (z ** 3) * t
+    theta = (2 * 1j * z * x + 8 * 1j * (z ** 3) * t)
     return theta
 
 def Delta(i,j):

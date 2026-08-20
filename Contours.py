@@ -75,10 +75,15 @@ def Add_saut_cercle_to_dico(dico, c_j, z_j, x, t):
 
 def Rayon_cercles(z_j_im):
     dist = []
-    for ii in range(len(z_j_im)):
-        for jj in range(ii + 1, len(z_j_im)):
-            dist.append(np.abs(z_j_im[ii] - z_j_im[jj]))
-    return (min(dist) / 2) * 0.8
+    N = len(z_j_im)
+    if N == 1:
+        sortie = 0
+    if N > 1:
+        for ii in range(N):
+            for jj in range(ii + 1, len(z_j_im)):
+                dist.append(np.abs(z_j_im[ii] - z_j_im[jj]))
+        sortie = (min(dist) / 2) * 0.8
+    return sortie
 
 def visualisation_contour_cercle(dico_liste, z_list):
     taille = 10

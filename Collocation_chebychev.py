@@ -7,7 +7,6 @@ from numpy.polynomial.chebyshev import chebvander
 def Cheb_point(L, N, oriant = 1, bord = 2):
     """
     Génère les points de collocation et la matrice d'évaluation.
-
     :param L: rayon de l'intervalle
     :param N: nombre de points
     :return: points de collocation et matrice de Vandermonde de Chebyshev
@@ -18,15 +17,9 @@ def Cheb_point(L, N, oriant = 1, bord = 2):
     if bord == 2:
         Int =  Int_tot[1:-1]
         V = V_tot[1:-1, 1:-1]
-        #print("min Int , max Int", Int[0], Int[-1])
-        #print("taill int :", len(Int))
-        #print("forme de V :", np.shape(V))
     if bord == 0 :
         Int =  Int_tot
         V = V_tot
-        #print("min Int , max Int", min(Int), max(Int))
-        #print("taill int :", len(Int))
-        #print("forme de V :", np.shape(V))
     if (bord != 0 and bord != 2) :
         Int = np.zeros(N)
         V = np.zeros([N, N])
@@ -34,20 +27,31 @@ def Cheb_point(L, N, oriant = 1, bord = 2):
     return L * Int, V
 
 
-def Diff_cheb_1(N):
+def Diff_cheb_1_alt(N):
     D = np.zeros([N, N])
 
     for n in range(1, N):
 
         if n % 2 == 0:
-            # n pair : T_n' = 2n (T_{n-1} + T_{n-3} + ... + T_1)
             D[1:n:2, n] = 2 * n
         else:
-            # n impair : T_n' = n T_0 + 2n (T_{n-1} + T_{n-3} + ... + T_2)
             D[0, n] = n
             D[2:n:2, n] = 2 * n
 
     return D
+
+
+def Diff_cheb_1(N):
+    D = np.zeros([N, N])
+
+    for n in range(N):
+        for r in range(n-1):
+            if (n - r) % 2 != 0:
+                D[n,r] = 2 * n
+            else:
+                D[n,r] = 0
+    return D.T
+
 
 def system(D_1, D_2, U, u, s):
     M1 = D_2 + 2 * 1j * s * D_1 + U

@@ -18,10 +18,11 @@ n, Y = grille(N_Fourrier, M)
 X_Fourrier = Changement_variables(Y)
 
 # Chebichev  (Fonction rho)
-L = 100                                                  # troncage de la droite pour chebychev
+L = 50                                                  # troncage de la droite pour chebychev
 N_cheb = 1000                                              # Nombre de points de collocation
 rho_points = 200
-X_cheb, V = Cheb_point(L, N_cheb)
+int_rho = [-5, 5]
+X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0)
 D = Diff_cheb_1(N_cheb)
 
 #######################################################################################################"
@@ -42,12 +43,12 @@ Q_Fourrier = (v1 / 2) * (np.cosh(X_Fourrier) ** (-2))
 # ------------------------------------
 
 U = np.diag(Q_cheb)
-V_inv = np.linalg.solve(V, np.eye(N_cheb + 1))
+V_inv = np.linalg.inv(V)
 
 D_1 = V @ D @ V_inv / L
 D_2 = V @ D @ D @ V_inv / (L ** 2)
 
-S = np.linspace(-4,4,rho_points)
+S = np.linspace(int_rho[0],int_rho[1],rho_points)
 rho_list = []
 for s in S:
     print(s)
@@ -105,18 +106,6 @@ for jj in range(min(len(Pol_verif_array), len(z_0_im))):
     print("Pole", z_0_im[jj])
     print("diff:", np.abs(np.imag(Pol_verif_array[jj]) - z_0_im[jj]))
 
-#print("v1 theorique =", v1)
-#print("v2 theorique =", v2)
-#print("delta theorique =", deta)
-#v1 = 4 * (z_0_im[0] ** 2)
-#v2 = 4 * (z_0_im[1] ** 2)
-#delta1 = -np.log((2 * z_0_im[0])/np.imag(C_list[0])) * ((2 * z_0_im[0]) ** (-1))
-#delta2 = -np.log((2 * z_0_im[1])/np.imag(C_list[1])) * ((2 * z_0_im[1]) ** (-1))
-#Q_Fourrier_verif = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_Fourrier - delta1 ))) ** (-2) + (v2 / 2) * (np.cosh((np.sqrt(v2) / 2) * (X_Fourrier - delta2))) ** (-2)
-#Q_Fourrier_verif = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_Fourrier - delta1 ))) ** (-2)
-#print("v1 Calculer =", v1)
-#print("v2 calculer =", v2)
-#print("delta calculer =", delta1, delta2)
 
 
 

@@ -17,10 +17,10 @@ n, Y = grille(N_Fourrier, M)
 X_Fourrier = Changement_variables(Y)
 
 # Chebichev  (Fonction rho)
-L = 50                                                  # troncage de la droite pour chebychev
-N_cheb = 1500                                            # Nombre de points de collocation
-rho_points = 1000
-int_rho = [-10, 10]
+L = 50                                                 # troncage de la droite pour chebychev
+N_cheb = 1400                                          # Nombre de points de collocation
+rho_points = 10
+int_rho = [-5, 5]
 X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0)
 D = Diff_cheb_1(N_cheb)
 print("D :", np.shape(D))
@@ -29,8 +29,8 @@ print("D :", np.shape(D))
 
 # définition du potentiel
 # --------------------------
-A = [2.4 , 1, 8]
-delta = [10, 0, 5]
+A = [2.4]
+delta = [10]
 # Soliton à l'instant t = 0
 Q_cheb = multi_soliton_phys(A, delta, X_cheb, 0)
 Q_Fourrier = multi_soliton_phys(A, delta, X_Fourrier, 0)
@@ -42,7 +42,7 @@ Q_Fourrier = multi_soliton_phys(A, delta, X_Fourrier, 0)
 
 U = np.diag(Q_cheb)
 V_inv = np.linalg.inv(V)
-print("V_inv:", np.shape(V_inv))
+
 
 D_1 = V @ D @ V_inv / L
 D_2 = V @ D @ D @ V_inv / (L ** 2)

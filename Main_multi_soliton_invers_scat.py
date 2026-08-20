@@ -15,6 +15,7 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     int_rho = scattering_data["int_rho"]
     z_0_im = scattering_data["z_0_im"]
     N_pole = len(z_0_im)
+    z_0_im = []
     z_0_im_alt = []
     C_list_alt = []
 
@@ -22,12 +23,13 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
         z_0, C_0 = conv_amp_defa_to_pole_norm(A[ii], delta[ii])
         z_0_im_alt.append(z_0)
         C_list_alt.append(C_0 * 1j)
-    C_list = scattering_data["C_list"]
+    #C_list = scattering_data["C_list"]
     #print("C_list, C_list_alt :", C_list, C_list_alt)
     #print("z_0_im, z_0_im_alt :", z_0_im, z_0_im_alt)
 
     C_list = C_list_alt.copy()
     z_0_im = z_0_im_alt.copy()
+
     # Def du contour
 
     N_interpol = N_interpol_courb * 4 * N_pole
@@ -75,13 +77,13 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     # Construction du problème RHP discretiser sur les contour et des équation linéaire associé
     op, b = Operateur(W_glob, Cmoin, N_interpol)
 
-    U = np.linalg.solve(op, b)                 # Résolution de celui-ci
+    U = np.linalg.lstsq(op, b, rcond=None)[0]                 # Résolution de celui-ci
     U_phys = U.reshape(-1, 2)                  # On remmmet le vecteur mis a plat en deux colones pour les deux composantes
 
     # Construction et résolution de la dérivée partielle en x de RHP
     b_x = Non_homogène_deriv_x(W_x_glob, Cmoin, N_interpol, U_phys)
 
-    U_phys_x_plat = np.linalg.solve(op, b_x)
+    U_phys_x_plat = np.linalg.lstsq(op, b_x, rcond=None)[0]
     U_phys_x = U_phys_x_plat.reshape(-1, 2)    # Ideme que pour U_phys
 
 
@@ -90,12 +92,14 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
 
     #print("int U_x :", integ_U_x)
     q_x = -integ_U_x * 2 * 1j
-    #print("q_x :", q_x)
+    print("q_x :", q_x)
 
     # Verification
     q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
-    #print("q_theorique :", q_theorique[0])
-    #print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
+    print("q_theorique :", q_theorique[0])
+    err_abs = abs(q_x - q_theorique)
+    print("Erreur abs:", err_abs)
+    print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
     # Sauvgarde
     if sauvgarde == True:
@@ -104,20 +108,22 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
                  +"_x_" + str(x)+ "_t_" + str(t) + ".npz",
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
-
-
+    print("max |W| =", np.max(np.abs(W_glob)))
+    print("max |W_x| =", np.max(np.abs(W_x_glob)))
+    print("cond(op) =", np.linalg.cond(op))
+    print("residual =", np.linalg.norm(op @ U.reshape(-1) - b) / np.linalg.norm(b))
 
     return q_x, U_phys, U_phys_x
 
 # import des donnée de scattering
-A = [2.4 , 1, 8]
-delta = [10, 0, 5]
+A = [2.4]
+delta = [10]
 
 scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
 
 # param
 N_interpol_courb = 100
-T, X = np.meshgrid(np.linspace(0, 10, 10), np.linspace(0, 100, 100))
+T, X = np.meshgrid(np.linspace(0, 10, 2), np.linspace(0, 20, 3))
 Q = np.zeros(T.shape, dtype=complex)
 for ii in range(T.shape[0]):
     for jj in range(T.shape[1]):
