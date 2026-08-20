@@ -98,7 +98,7 @@ def Diag_et_filtre(H):
     # Diagonalisation
     eigvals, eigvecs = np.linalg.eig(H)
     # filtrage
-    mask = (np.abs(eigvals.imag) < 1e-10) & (eigvals.real < 0)
+    mask = (np.abs(eigvals.imag) < 1e-10) & (eigvals.real < -1e-10)
     lambda_bonne = eigvals.real[mask]
     eigvecs_bonne = eigvecs[:, mask]
 

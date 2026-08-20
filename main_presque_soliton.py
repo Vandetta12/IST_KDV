@@ -18,27 +18,22 @@ n, Y = grille(N_Fourrier, M)
 X_Fourrier = Changement_variables(Y)
 
 # Chebichev  (Fonction rho)
-L = 50                                                  # troncage de la droite pour chebychev
-N_cheb = 1000                                              # Nombre de points de collocation
+L = 10                                                  # troncage de la droite pour chebychev
+N_cheb = 201                                            # Nombre de points de collocation
 rho_points = 200
 int_rho = [-5, 5]
-X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0)
+X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 2, complex = False)
 D = Diff_cheb_1(N_cheb)
-
+print("centre :", X_cheb[N_cheb//2])
 #######################################################################################################"
 
 # définition du potentiel
 # --------------------------
 v1 = 2.4 * 2
-v2 = 1
-deta = 15
 # Soliton à l'instant t = 0
-#Q_cheb = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_cheb ))) ** (-2) + (v2 / 2) * (np.cosh((np.sqrt(v2) / 2) * (X_cheb - deta))) ** (-2)
-#Q_Fourrier = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_Fourrier ))) ** (-2) + (v2 / 2) * (np.cosh((np.sqrt(v2) / 2) * (X_Fourrier - deta))) ** (-2)
 Q_cheb = (v1 / 2) * (np.cosh(X_cheb) ** (-2))
 Q_Fourrier = (v1 / 2) * (np.cosh(X_Fourrier) ** (-2))
-#Q_cheb = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_cheb - deta))) ** (-2)
-#Q_Fourrier = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X_Fourrier -deta))) ** (-2)
+
 # Calcule de rho sur la droite réelle :
 # ------------------------------------
 
@@ -89,7 +84,7 @@ b_z_0 = []
 C_list= []
 for jj in range(len(z_0_im)):
     j0_cheb = fined_close_to_Fourier_in_cheb(j0[jj], X_cheb, X_Fourrier)
-    b_pole, Integ_mu = residus(N_cheb, D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
+    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
     print("Integ_mu:", Integ_mu)
     b_z_0.append(b_pole)
     C_list.append((1j * (b_pole ** 2)) / Integ_mu)

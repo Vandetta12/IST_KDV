@@ -4,19 +4,22 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.chebyshev import chebvander
 
 # Fonctions
-def Cheb_point(L, N, oriant = 1, bord = 2):
+def Cheb_point(L, N, oriant = 1, bord = 2, complex = True):
     """
     Génère les points de collocation et la matrice d'évaluation.
     :param L: rayon de l'intervalle
     :param N: nombre de points
     :return: points de collocation et matrice de Vandermonde de Chebyshev
     """
-    N_vect = np.arange(N + bord, dtype=complex)
+    if complex == True:
+        N_vect = np.arange(N + bord, dtype=complex)
+    if complex == False :
+        N_vect = np.arange(N + bord)
     Int_tot = -oriant * np.cos(np.pi * (N_vect / (N + bord - 1)))
     V_tot = chebvander(Int_tot, N + bord - 1)
     if bord == 2:
         Int =  Int_tot[1:-1]
-        V = V_tot[1:-1, 1:-1]
+        V = V_tot[1:-1, :N]
     if bord == 0 :
         Int =  Int_tot
         V = V_tot
@@ -27,30 +30,25 @@ def Cheb_point(L, N, oriant = 1, bord = 2):
     return L * Int, V
 
 
-def Diff_cheb_1_alt(N):
-    D = np.zeros([N, N])
-
-    for n in range(1, N):
-
-        if n % 2 == 0:
-            D[1:n:2, n] = 2 * n
-        else:
-            D[0, n] = n
-            D[2:n:2, n] = 2 * n
-
-    return D
 
 
 def Diff_cheb_1(N):
-    D = np.zeros([N, N])
-
-    for n in range(N):
-        for r in range(n-1):
-            if (n - r) % 2 != 0:
-                D[n,r] = 2 * n
-            else:
-                D[n,r] = 0
-    return D.T
+    D_t = np.zeros([N, N])
+                                          # T_0'=0 donc on y touche pas. Par contre,
+    D_t[1, 0] = 1                         # T_1'=1=T_0
+    for k in range(2,N):                  # L'indice j des lignes correspond a T_j'
+        if k % 2 == 0:                    # Si k est paire, alors k-1 est impaire
+            j = 1
+            while j <= (k-1):
+                D_t[k,j] = 2 * k
+                j += 2
+        else :                            # Si k est impaire, alors k-1 est paire
+            D_t[k,0] = k
+            j = 2
+            while j <= (k-1):
+                D_t[k,j] = 2 * k
+                j+=2
+    return D_t.T
 
 
 def system(D_1, D_2, U, u, s):
@@ -85,7 +83,6 @@ def system(D_1, D_2, U, u, s):
     return M1, M2, b_gauche, b_droite
 
 def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
-
 
     #j0 = N // 2
     f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
@@ -156,6 +153,7 @@ def rho(N, D_1, D_2, U, u, s):
 
     # Choix du point x0
     j0 = N // 2
+
     x0 = 0
 
     # Extraction des valeurs au point x0

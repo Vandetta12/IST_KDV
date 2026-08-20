@@ -21,16 +21,17 @@ L = 50                                                 # troncage de la droite p
 N_cheb = 1400                                          # Nombre de points de collocation
 rho_points = 10
 int_rho = [-5, 5]
-X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0)
+X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, complex = False)
 D = Diff_cheb_1(N_cheb)
+print("Xcheb", X_cheb)
 print("D :", np.shape(D))
 
 #######################################################################################################"
 
 # définition du potentiel
 # --------------------------
-A = [2.4]
-delta = [10]
+A = [2.4, 1]
+delta = [10, 5]
 # Soliton à l'instant t = 0
 Q_cheb = multi_soliton_phys(A, delta, X_cheb, 0)
 Q_Fourrier = multi_soliton_phys(A, delta, X_Fourrier, 0)
@@ -89,7 +90,7 @@ b_z_0 = []
 C_list= []
 for jj in range(len(z_0_im)):
     j0_cheb = fined_close_to_Fourier_in_cheb(j0[jj], X_cheb, X_Fourrier)
-    b_pole, Integ_mu = residus( D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
+    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
     b_z_0.append(b_pole)
     C_list.append((1j * (b_pole ** 2)) / Integ_mu)
 
