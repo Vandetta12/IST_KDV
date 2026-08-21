@@ -97,11 +97,11 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     #print("q_x :", q_x)
 
     # Verification
-    q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
+    #q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
     #print("q_theorique :", q_theorique[0])
     #err_abs = abs(q_x - q_theorique)
     #print("Erreur abs:", err_abs)
-    print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
+    #print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
     # Sauvgarde
     if sauvgarde == True:
