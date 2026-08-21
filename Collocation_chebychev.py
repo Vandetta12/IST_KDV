@@ -4,16 +4,16 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.chebyshev import chebvander
 
 # Fonctions
-def Cheb_point(L, N, oriant = 1, bord = 2, complex = True):
+def Cheb_point(L, N, oriant = 1, bord = 2, compl = True):
     """
     Génère les points de collocation et la matrice d'évaluation.
     :param L: rayon de l'intervalle
     :param N: nombre de points
     :return: points de collocation et matrice de Vandermonde de Chebyshev
     """
-    if complex == True:
+    if compl == True:
         N_vect = np.arange(N + bord, dtype=complex)
-    if complex == False :
+    if compl == False :
         N_vect = np.arange(N + bord)
     Int_tot = -oriant * np.cos(np.pi * (N_vect / (N + bord - 1)))
     V_tot = chebvander(Int_tot, N + bord - 1)
@@ -199,38 +199,6 @@ def cheb_int(mu,V_inv, L, n=1):
         int += cheb_coef[ii] * Cheb_int_poid(ii)
     return L * int
 
-def Cheb_int_morceaux(mu, X_cheb, j_r):
-    mu_g = mu[:j_r+1]
-    mu_d = mu[j_r:]
-    X_g = X_cheb[:j_r+1]
-    X_d = X_cheb[j_r:]
-    a_g, b_g = X_g[0], X_g[-1]
-    a_d, b_d = X_d[0], X_d[-1]
-    Centre_g = (b_g + a_g) / 2
-    L_g = (b_g - a_g) / 2
-    Centre_d = (a_d + b_d) / 2
-    L_d = (b_d - a_d) / 2
-
-    xi_g = (X_g - Centre_g) / (L_g)
-    xi_d = (X_d - Centre_d) / (L_d)
-
-    V_g = chebvander(xi_g, len(xi_g) -1)
-    V_d = chebvander(xi_d, len(xi_d) - 1)
-
-    coef_g = np.linalg.inv(V_g) @ (mu_g ** 2)
-    coef_d = np.linalg.inv(V_d) @ (mu_d ** 2)
-
-    int_g = 0.0 + 0.0j
-    for ii in range(len(mu_g)):
-        int_g += coef_g[ii] * Cheb_int_poid(ii)
-
-    int_d = 0.0 + 0.0j
-    for jj in range(len(mu_d)):
-        int_d += coef_d[jj] * Cheb_int_poid(jj)
-
-    Int_g = L_g * int_g
-    Int_d = L_d * int_d
-    return Int_g + Int_d
 
 
 def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
@@ -259,7 +227,7 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     visu_mu(mu, X_cheb, m1, m2)
 
     I = cheb_int(mu, V_inv, L, n=2)
-    #I = Cheb_int_morceaux(mu, X_cheb, j0)
+
 
     #I = np.trapezoid(mu ** 2, X_cheb)
 
@@ -267,45 +235,3 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     return b_coef, I
 
 
-
-
- # Corps du code
-#N = 1000                                                # Doit être paire !
-#L = 100
-
-
-# Paramètres
-#v = 2.4 * 2
-#deta = 0
-
-
-
-
-# Construction du système en nodale
-#X, V = Cheb_point(L, N)
-#D = Diff_cheb_1(N)
-
-# Soliton à l'instant t = 0
-#u = (v / 2) * (np.cosh((np.sqrt(v) / 2) * (X - deta))) ** (-2)
-
-# Presque soliton a t=0
-#u = (v / 2) * (np.cosh((X - deta))) ** (-2)
-
-
-
-
-#U = np.diag(u)
-#V_inv = np.linalg.solve(V, np.eye(N + 1))
-
-#D_1 = V @ D @ V_inv / L
-#D_2 = V @ D @ D @ V_inv / (L ** 2)
-
-#S = np.linspace(-15,15,N//10)
-#rho_list = []
-#for s in S:
-#    print(s)
-#    rho_list.append(rho(N, D_1, D_2, U, u, s))
-#rho_array = np.array(rho_list)
-#plt.plot(S, np.real(rho_array), color='red')
-#plt.plot(S, np.imag(rho_array), color='blue')
-#plt.show()

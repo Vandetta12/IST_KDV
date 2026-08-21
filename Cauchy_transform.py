@@ -405,7 +405,7 @@ def C_gamma_omega_borne(X_cheb_gamma, X_cheb_omega, V_inv, Mob_gamma, Mob_omega)
 def C_plus_assambalge_borne(liste_dico, N_interpol, N_interpol_courb):
     C = np.zeros([N_interpol, N_interpol], dtype=complex)
     N = len(liste_dico)
-    print("N :", N)
+    #print("N :", N)
     for ii in range(N):
         for jj in range(N):
             if ii == jj:

@@ -2,19 +2,20 @@
 import numpy as np
 from Mobius_mpas import (Mobius_arc)
 from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
-                      X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour)
+                      X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour, K_ensebmle)
 from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
 from Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
 from matplotlib import pyplot as plt
 
 def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
-    print("x :", x)
-    print("t :", t)
+    #print("x :", x)
+    #print("t :", t)
     #import
-    rho_points = scattering_data["rho_points"]
-    int_rho = scattering_data["int_rho"]
-    z_0_im = scattering_data["z_0_im"]
-    N_pole = len(z_0_im)
+    #rho_points = scattering_data["rho_points"]
+    #int_rho = scattering_data["int_rho"]
+    #z_0_im = scattering_data["z_0_im"]
+    #N_pole = len(z_0_im)
+    N_pole = len(A)
     z_0_im = []
     z_0_im_alt = []
     C_list_alt = []
@@ -34,6 +35,7 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
 
     N_interpol = N_interpol_courb * 4 * N_pole
     r = Rayon_cercles(z_0_im)
+    k_ens,_ = K_ensebmle(r, z_0_im, C_list, x, t)
     list_dico_plus = []
     list_dico_moin = []
 
@@ -46,9 +48,9 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
         Mob2_A, Mob2_B, Mob2_C, Mob2_D = Mobius_arc(z_0_im[jj] * 1j, r, theta_arc_2[0], theta_arc_2[1])
         Mob2 = (Mob2_A, Mob2_B, Mob2_C, Mob2_D)
         dico1 = Dico_courbe(N_interpol_courb, Mob1, 1)
-        Add_saut_cercle_to_dico(dico1, C_list[jj], z_0_im[jj], x, t)
+        Add_saut_cercle_to_dico(dico1, C_list[jj], z_0_im[jj], k_ens, x, t)
         dico2 = Dico_courbe(N_interpol_courb, Mob2, 1)
-        Add_saut_cercle_to_dico(dico2, C_list[jj], z_0_im[jj], x, t)
+        Add_saut_cercle_to_dico(dico2, C_list[jj], z_0_im[jj], k_ens, x, t)
         list_dico_plus.append(dico1)
         list_dico_plus.append(dico2)
 
@@ -57,9 +59,9 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
         Mob2_A, Mob2_B, Mob2_C, Mob2_D = Mobius_arc(-z_0_im[jj] * 1j, r, theta_arc_2[1], theta_arc_2[0])
         Mob2 = (Mob2_A, Mob2_B, Mob2_C, Mob2_D)
         dico1 = Dico_courbe(N_interpol_courb, Mob1, 1)
-        Add_saut_cercle_to_dico(dico1, C_list[jj], -z_0_im[jj], x, t)
+        Add_saut_cercle_to_dico(dico1, C_list[jj], -z_0_im[jj], k_ens, x, t)
         dico2 = Dico_courbe(N_interpol_courb, Mob2, 1)
-        Add_saut_cercle_to_dico(dico2, C_list[jj], -z_0_im[jj], x, t)
+        Add_saut_cercle_to_dico(dico2, C_list[jj], -z_0_im[jj], k_ens, x, t)
         list_dico_moin.append(dico1)
         list_dico_moin.append(dico2)
 
@@ -91,14 +93,14 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     integ_U_x = Int_cheb_mult_contour(liste_dico, U_phys_x, 0)
 
     #print("int U_x :", integ_U_x)
-    q_x = -integ_U_x * 2 * 1j
-    print("q_x :", q_x)
+    q_x = integ_U_x * 2 * 1j
+    #print("q_x :", q_x)
 
     # Verification
     q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
-    print("q_theorique :", q_theorique[0])
-    err_abs = abs(q_x - q_theorique)
-    print("Erreur abs:", err_abs)
+    #print("q_theorique :", q_theorique[0])
+    #err_abs = abs(q_x - q_theorique)
+    #print("Erreur abs:", err_abs)
     print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
     # Sauvgarde
@@ -108,55 +110,9 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
                  +"_x_" + str(x)+ "_t_" + str(t) + ".npz",
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
-    print("max |W| =", np.max(np.abs(W_glob)))
-    print("max |W_x| =", np.max(np.abs(W_x_glob)))
-    print("cond(op) =", np.linalg.cond(op))
-    print("residual =", np.linalg.norm(op @ U.reshape(-1) - b) / np.linalg.norm(b))
 
     return q_x, U_phys, U_phys_x
 
-# import des donnée de scattering
-A = [2.4]
-delta = [10]
-
-scattering_data = np.load("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + ".npz" )
-
-# param
-N_interpol_courb = 100
-T, X = np.meshgrid(np.linspace(0, 10, 2), np.linspace(0, 20, 3))
-Q = np.zeros(T.shape, dtype=complex)
-for ii in range(T.shape[0]):
-    for jj in range(T.shape[1]):
-        Q[ii,jj], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, X[ii, jj], T[ii,jj], scattering_data)
-        print(ii,jj)
-
-np.savez("Q_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "_Grid_" + str(T.shape) + ".npz", Q=Q, X=X, T=T)
-
-
-plt.pcolormesh(T, X, np.real(Q), cmap="plasma", shading="auto")
-plt.contour(T, X, np.real(Q), colors="white")
-plt.colorbar(label="Q")
-plt.xlabel("t")
-plt.ylabel("x")
-plt.show()
-
-Q_theorique = multi_soliton_phys(A,delta, X,T)
-
-plt.pcolormesh(T, X, Q_theorique, cmap="plasma", shading="auto")
-plt.contour(T, X, Q_theorique, colors="white")
-plt.colorbar(label="Q_theorique")
-plt.xlabel("t")
-plt.ylabel("x")
-plt.show()
-
-Err= np.abs(Q_theorique - Q)
-
-plt.pcolormesh(T, X, Err, cmap="plasma", shading="auto")
-plt.contour(T, X, Err, colors="white")
-plt.colorbar(label="Erreur")
-plt.xlabel("t")
-plt.ylabel("x")
-plt.show()
 
 
 

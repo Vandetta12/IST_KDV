@@ -16,17 +16,30 @@ from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_am
 
 
 
-def Saut_cercle(c_j,z,z_j, signe, x, t):
-    V = np.zeros([2,2], dtype=complex)
+def Saut_cercle_T(c_j,z,z_j, signe, x, t):
+    T = np.zeros([2,2], dtype=complex)
 
     arg = (-c_j * np.exp(Theta(z_j,x,t))) / (z - (signe * z_j))
-    V[0,0] = 1
-    V[1,1] = 1
-    if signe == 1:
-        V[0,1] = arg
+    T[0,0] = 1
+    T[1,1] = 1
     if signe == -1:
-        V[1,0] = arg
-    return V
+        T[0,1] = arg
+    if signe == 1:
+        T[1,0] = arg
+    return T
+
+def Saut_cercle_S(c_j,z,z_j, signe, x, t):
+    S = np.zeros([2, 2], dtype=complex)
+
+    arg = -((z - (signe * z_j)) /c_j) * np.exp(-Theta(z_j, x, t))
+    S[0, 0] = 1
+    S[1, 1] = 1
+    if signe == 1:
+        S[0, 1] = arg
+    if signe == -1:
+        S[1, 0] = arg
+    return S
+
 
 
 def Dico_courbe(n, Mob, ori):
@@ -36,7 +49,7 @@ def Dico_courbe(n, Mob, ori):
     :param Mob: 4-uple parmètre de la transfor de mobius
     :return: dixionaire
     """
-    X_cheb, V = Cheb_point(1, n, oriant = ori, bord=0)
+    X_cheb, V = Cheb_point(1, n, oriant = ori, bord=0, compl=True)
     F = np.linalg.inv(V)
 
     X_phys = Inv_Mobius_general(X_cheb, Mob[0], Mob[1], Mob[2], Mob[3])
@@ -49,40 +62,114 @@ def Dico_courbe(n, Mob, ori):
 
     return dico
 
-def Add_saut_cercle_to_dico(dico, c_j, z_j, x, t):
+def Critere_inv(r,z_j, c_j, x, t, seuille):
+    """
+    Fonctions qui détermine si un un coutour circulaire associé à un pole doit avoir un suat inverser pour garentire
+    la stabilitée numérique.
+    :param r: rayon du cercle
+    :param z_j: positions du pôle
+    :param c_j: constance de normalisation associé au pole
+    :param x: positions spaciale (paremetre du RHP)
+    :param t: positions temporelle (paremetre du RHP)
+    :param seuille: seuille pour garentire la précisions numérique
+    :return:
+    """
+    eta = np.log(np.abs(c_j)) + np.real(Theta(np.abs(z_j) * 1j, x, t))-np.log(r)
+    if eta < seuille:
+        sortie = False
+    else:
+        sortie = True
+    return sortie
+
+def Q_mat(z,k_ens):
+    Q = np.zeros([2,2], dtype=complex)
+    Q[0,0] = 1
+    Q[1,1] = 1
+    for z_j in k_ens:
+        Q[0,0] = Q[0,0] * ((z - (np.abs(z_j) * 1j)) / (z + (np.abs(z_j) * 1j)))
+        Q[1,1] = Q[1,1] * ((z + (np.abs(z_j) * 1j)) / (z - (np.abs(z_j) * 1j)))
+    return Q
+
+def Q_mat_inv(z,k_ens):
+    Q_moin = np.zeros([2,2], dtype=complex)
+    Q_moin[0,0] = 1
+    Q_moin[1,1] = 1
+    for z_j in k_ens:
+        Q_moin[0,0] = Q_moin[0,0] * ((z + (np.abs(z_j) * 1j)) / (z - (np.abs(z_j) * 1j)))
+        Q_moin[1,1] = Q_moin[1,1] * ((z - (np.abs(z_j) * 1j)) / (z + (np.abs(z_j) * 1j)))
+    return Q_moin
+
+
+def K_ensebmle(r, z_j_list, c_j_list, x, t, seuille = 0):
+    """
+
+    :param r:
+    :param z_j_list:
+    :param c_j_list:
+    :param x:
+    :param t:
+    :return:
+    """
+    k_list = []
+    indice_inv_list = []
+    for ii in range(len(z_j_list)):
+        z_j = z_j_list[ii]
+        c_j = c_j_list[ii]
+        crit = Critere_inv(r, z_j, c_j, x, t, seuille)
+        if crit == True:
+            k_list.append(z_j)
+            indice_inv_list.append(ii)
+    return k_list, indice_inv_list
+
+def Add_saut_cercle_to_dico(dico, c_j, z_j, k_ens, x, t):
     n = dico['n']
     x_phys = dico['x_phys']
     signe = np.sign(z_j)
     G = np.zeros([n, 2, 2], dtype=complex)
     W = np.zeros([n, 2, 2], dtype=complex)
     W_x = np.zeros([n, 2, 2], dtype=complex)
-    for ii in range(n):
-        G[ii, :, :] = Saut_cercle(c_j, x_phys[ii], np.abs(z_j) * 1j, signe, x, t)
-        W[ii, :, :] = G[ii, :, :] - np.eye(2)
-        G_x = G[ii, :, :].copy()
-        G_x[0,0] = 0
-        G_x[1,1] = 0
-        G_x[1,0] = G_x[1,0] * -2 * np.abs(z_j)
-        G_x[0, 1] = G_x[0, 1] * -2 * np.abs(z_j)
-        W_x[ii, :, :] = G_x
+    abs_z_j = np.abs(z_j)
+    if abs_z_j in k_ens:
+        for ii in range(n):
+            Q = Q_mat(x_phys[ii], k_ens)
+            Q_inv = Q_mat_inv(x_phys[ii], k_ens)
+            G[ii, :, :] = Q_inv @ Saut_cercle_S(c_j, x_phys[ii], abs_z_j * 1j, signe, x, t) @ Q
+            W[ii, :, :] = G[ii, :, :] - np.eye(2)
+            W_x[ii, :, :] = W[ii,:,:] * 2 * abs_z_j
+            inversion = True
+    else :
+        for ii in range(n):
+            Q = Q_mat(x_phys[ii], k_ens)
+            Q_inv = Q_mat_inv(x_phys[ii], k_ens)
+            G[ii, :, :] = Q_inv @ Saut_cercle_T(c_j, x_phys[ii], abs_z_j * 1j, signe, x, t) @ Q
+            W[ii, :, :] = G[ii, :, :] - np.eye(2)
+            W_x[ii, :, :] = W[ii,:,:] * -2 * abs_z_j
+            inversion = False
+
     dico['G'] = G
     dico['W'] = W
     dico['signe']= signe
-    dico['z_j'] = np.abs(z_j) * 1j
+    dico['z_j'] = abs_z_j * 1j
     dico['c_j'] = c_j
     dico['W_x']=W_x
+    dico['inversion'] = inversion
     return
 
 def Rayon_cercles(z_j_im):
     dist = []
     N = len(z_j_im)
     if N == 1:
-        sortie = 0
+        sortie = np.abs(z_j_im[0]) * 0.8
     if N > 1:
         for ii in range(N):
             for jj in range(ii + 1, len(z_j_im)):
                 dist.append(np.abs(z_j_im[ii] - z_j_im[jj]))
-        sortie = (min(dist) / 2) * 0.8
+        dist_min = (min(dist) / 2)
+        norm_min = np.min(np.abs(z_j_im))
+        if dist_min < norm_min:
+            sortie = dist_min * 0.8
+        else:
+            sortie = norm_min * 0.8
     return sortie
 
 def visualisation_contour_cercle(dico_liste, z_list):
