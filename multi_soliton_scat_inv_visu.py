@@ -5,20 +5,20 @@ from Main_multi_soliton_invers_scat import Scatt_invers_multi_soliton
 from Fonction_utile import multi_soliton_phys
 # import des donnée de scattering
 A = [2.4, 1]
-delta = [10, 500]
+delta = [10, 500, 5]
 
 v1 = A[0] * 2
 v2 = A[1] * 2
 
 t_x = (delta[1] - delta[0]) / (v1 - v2)
 x_t = delta[0] + v1 * t_x
-#v3 = (x_t - delta[2]) / t_x
-#A.append((v3 / 2))
+v3 = (x_t - delta[2]) / t_x
+A.append((v3 / 2))
 
-scattering_data = np.load("Scattering_data_trois_soliton_A_[2.4, 1]_Delt_[10, 5]N_cheb_1001_N_rho_10_[-5, 5].npz", allow_pickle=True)
-
+#scattering_data = np.load("Scattering_data_trois_soliton_A_[2.4, 1]_Delt_[10, 5]N_cheb_1001_N_rho_10_[-5, 5].npz", allow_pickle=True)
+scattering_data = []
 # param
-N_interpol_courb = 50
+N_interpol_courb = 40
 Nx = 100
 Nt = 100
 x_lareur = 7
