@@ -183,20 +183,41 @@ def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
     return np.array(mu)
 
 
-def Cheb_int_poid(n):
-    if n % 2 ==0 :
-        poid = 2 /(1- (n ** 2))
+def reconstruction_alt(X_cheb, m1, m2, b_coef, s, j0):
+
+    #j0 = N // 2
+    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
+    f_m = m2 * np.exp(-1j * X_cheb * s)
+
+    centre = len(X_cheb)//2
+
+    b = f_p_bar[centre] / f_m[centre]
+    print("b", b)
+    f_p_bar_d = f_p_bar[centre:]
+    f_m_g = f_m[:centre] * b
+
+    mu = []
+    for aa in range(len(X_cheb)):
+        if aa < centre :
+            mu.append(f_m_g[aa])
+        else :
+            mu.append(f_p_bar_d[aa - j0])
+    return np.array(mu), b
+
+def Cheb_int_poid(k):
+    if k % 2 ==0 :
+        poid = 2 /(1- (k ** 2))
     else :
-        poid = 0
+        poid = 0                        # Equivalent a 1 + (1)^k
     return poid
 
 
-def cheb_int(mu,V_inv, L, n=1):
+def cheb_int(mu,V_inv, L, exp=1):
     N = len(mu)
-    cheb_coef = V_inv @ (mu ** n)
+    cheb_coef = V_inv @ (mu ** exp)                    # Décompostion sur la base tronquée
     int = 0
     for ii in range(N):
-        int += cheb_coef[ii] * Cheb_int_poid(ii)
+        int += cheb_coef[ii] * Cheb_int_poid(ii)     # Somme pondérée
     return L * int
 
 
@@ -217,16 +238,11 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     b_coef = (m2_0 / m1_0) * np.exp(-2 * 1j * s * X_cheb[j0])
     mu = reconstruction(X_cheb, m1, m2, b_coef, s, j0)
     # Diagnostique
-    left =  m2[j0] * np.exp(-1j * s * X_cheb[j0])
-    right = b_coef * m1[j0] * np.exp(+1j * s * X_cheb[j0])
-
-    print("Continuité test :", left - right)
-
 
     #############
     visu_mu(mu, X_cheb, m1, m2)
 
-    I = cheb_int(mu, V_inv, L, n=2)
+    I = cheb_int(mu, V_inv, L, exp=2)
 
 
     #I = np.trapezoid(mu ** 2, X_cheb)

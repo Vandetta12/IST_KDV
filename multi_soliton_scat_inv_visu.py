@@ -3,9 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Main_multi_soliton_invers_scat import Scatt_invers_multi_soliton
 from Fonction_utile import multi_soliton_phys
+
 # import des donnée de scattering
 A = [2.4, 1]
-delta = [10, 500,-100]
+delta = [10, 100,-200]
 
 v1 = A[0] * 2
 v2 = A[1] * 2
@@ -15,16 +16,19 @@ x_t = delta[0] + v1 * t_x
 v3 = (x_t - delta[2]) / t_x
 A.append(v3 / 2)
 
+
+
 #scattering_data = np.load("Scattering_data_trois_soliton_A_[2.4, 1]_Delt_[10, 5]N_cheb_1001_N_rho_10_[-5, 5].npz", allow_pickle=True)
 scattering_data = []
 # param
-N_interpol_courb = 40
-Nx = 100
-Nt = 100
-x_lareur = 7
-t_lareur = 7
+N_interpol_courb = 20
+Nx = 200
+Nt = 200
+x_lareur = 20
+t_lareur = 20
 epsilon_t = 1
-epsilon_x = 5
+epsilon_x = 3
+
 x_values = np.linspace(x_t - x_lareur, x_t + x_lareur, Nx)
 
 t_values = np.linspace(t_x - t_lareur, t_x + t_lareur, Nt)
@@ -82,12 +86,40 @@ erreur_rel_x = erreur_abs_x / np.maximum(np.abs(q_x_theorique),seuil_relatif)
 
 erreur_rel_t = erreur_abs_t / np.maximum(np.abs(q_t_theorique),seuil_relatif)
 
-print("Erreur absolue max x:", np.max(erreur_abs_x))
-print("Erreur absolue max t:", np.max(erreur_abs_t))
-print("Erreur relatif max x:", np.max(erreur_rel_x),"%")
-print("Erreur relatif max t:", np.max(erreur_rel_t),"%")
+print("A:", A)
+print("delta:", delta)
+print("v1, v2, v3 :", v1, v2, v3)
+print("N_interpol_courb :", N_interpol_courb)
+print("Nx :", Nx)
+print("Nt :", Nt)
+print("x_lareur :", x_lareur)
+print("t_lareur :", t_lareur)
+print("epsilon_t :", epsilon_t)
+print("epsilon_x :", epsilon_x)
+
+indice = np.argmax(erreur_abs_x, axis=1)
+for ii in range(len(indice)):
+    print(str(ii) + "Erreur absolue max x:", erreur_abs_x[ii, indice[ii]])
+    print("x :", x_values[indice[ii]])
+
+indice = np.argmax(erreur_abs_t, axis=1)
+for ii in range(len(indice)):
+    print(str(ii) + "Erreur absolue max t:", erreur_abs_t[ii, indice[ii]])
+    print("t :", t_values[indice[ii]])
+
+indice = np.argmax(erreur_rel_x, axis=1)
+for ii in range(len(indice)):
+    print(str(ii) + "Erreur relatif max x:", erreur_rel_x[ii, indice[ii]],"%")
+    print("x :", x_values[indice[ii]])
+
+indice = np.argmax(erreur_rel_t, axis=1)
+for ii in range(len(indice)):
+    print(str(ii) + "Erreur relatif max t:", erreur_rel_t[ii, indice[ii]],"%")
+    print("t :", t_values[indice[ii]])
+
 
 plancher = np.finfo(float).eps
+
 
 fig, axes = plt.subplots(3,1,figsize=(10, 11),sharex=True,constrained_layout=True)
 
@@ -231,3 +263,6 @@ for kk, ax in enumerate(axes):
 
 axes[-1].set_xlabel(r"$t$")
 plt.show()
+
+
+print("plancher :", plancher)
