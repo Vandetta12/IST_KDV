@@ -1,12 +1,12 @@
 # import
 import numpy as np
 import matplotlib.pyplot as plt
-from Collocation_chebychev import Cheb_point, cheb_int
-from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
+from Direct_scattering.methodes.Collocation_chebychev import Cheb_point, cheb_int
+from misc.Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
-from Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa, multi_soliton_scat_data,
+from misc.Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa, multi_soliton_scat_data,
                             multi_soliton_phys, try_pole, conv_amp_defa_to_pole_norm,  Theta )
 
 

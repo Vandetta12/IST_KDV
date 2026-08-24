@@ -1,13 +1,13 @@
 # Import
 import numpy as np
 import matplotlib.pyplot as plt
-from Collocation_chebychev import Cheb_point
 from scipy.special import hyp2f1
-from Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
+from Direct_scattering.methodes.Collocation_chebychev import Cheb_point
+from misc.Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_rivers_strech_ray, Mobius_arc, Mobius_general, Inv_Mobius_general,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
-from Fonction_utile import Delta
+from misc.Fonction_utile import Delta
 from Contours import Decupage_U
 
 

@@ -52,32 +52,32 @@ def Diff_cheb_1(N):
 
 
 def system(D_1, D_2, U, u, s):
-    M1 = D_2 + 2 * 1j * s * D_1 + U
-    M2 = D_2 - 2 * 1j * s * D_1 + U
+    M1 = D_2 + 2 * 1j * s * D_1 - U
+    M2 = D_2 - 2 * 1j * s * D_1 - U
 
     # Conditions aux bords
     # valeur 0 en -infty
 
-    M1[0,:] = 0.0
-    M1[0,0]=1.0
-    b_gauche = -u.copy()
+    M2[0,:] = 0.0
+    M2[0,0]=1.0
+    b_gauche = u.copy()
     b_gauche[0] = 0
 
     # valeur 0 en +infty
 
-    M2[-1, :] = 0.0
-    M2[-1, -1] = 1.0
-    b_droite = -u.copy()
+    M1[-1, :] = 0.0
+    M1[-1, -1] = 1.0
+    b_droite = u.copy()
     b_droite[-1] = 0
 
     # derivée 0 en -infty
 
-    M1[-1, :] = D_1[0, :]
+    M2[-1, :] = D_1[0, :]
     b_gauche[-1] = 0.0
 
     # derivée 0 en +infty
 
-    M2[0, :] = D_1[-1, :]
+    M1[0, :] = D_1[-1, :]
     b_droite[0] = 0.0
 
     return M1, M2, b_gauche, b_droite
@@ -120,15 +120,14 @@ def visu_mu(mu, X_cheb, m1, m2):
 
 def rho(N, D_1, D_2, U, u, s):
 
-
     M1, M2, b_g, b_d = system(D_1, D_2, U, u, s)
     M1_m, M2_m, b_g_m, b_d_m = system(D_1, D_2, U, u, -s)
 
-    m1 = np.linalg.solve(M1, b_g) + 1
-    m2 = np.linalg.solve(M2, b_d) + 1
+    m1 = np.linalg.solve(M1, b_d) + 1
+    m2 = np.linalg.solve(M2, b_g) + 1
 
-    m1m = np.linalg.solve(M1_m, b_g_m) + 1
-    m2m = np.linalg.solve(M2_m, b_d_m) + 1
+    m1m = np.linalg.solve(M1_m, b_d_m) + 1
+    m2m = np.linalg.solve(M2_m, b_g_m) + 1
 
     # Dérivées
     dm1 = D_1 @ m1
@@ -226,8 +225,8 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     M1, M2, b_g, b_d = system(D_1, D_2, U, u, s)
 
 
-    m1 = np.linalg.lstsq(M1, b_g, rcond=None)[0] + 1
-    m2 = np.linalg.lstsq(M2, b_d, rcond=None)[0] + 1
+    m1 = np.linalg.lstsq(M1, b_d, rcond=None)[0] + 1
+    m2 = np.linalg.lstsq(M2, b_g, rcond=None)[0] + 1
 
 
     # Extraction des valeurs au point x0

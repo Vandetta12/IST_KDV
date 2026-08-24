@@ -1,11 +1,11 @@
 # Import
 import numpy as np
-from Mobius_mpas import (Mobius_arc)
-from Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
+from misc.Mobius_mpas import (Mobius_arc)
+from methodes.Contours import (Dico_courbe, Rayon_cercles, visualisation_contour_cercle, Add_saut_cercle_to_dico,
                       X_phys_glob_G_glob_W_glob_x_glob, Int_cheb_mult_contour, K_ensebmle)
-from Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
-from Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
-from matplotlib import pyplot as plt
+from methodes.Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_homogène_deriv_x
+from misc.Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
+
 
 def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
     #print("x :", x)
@@ -79,13 +79,15 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     # Construction du problème RHP discretiser sur les contour et des équation linéaire associé
     op, b = Operateur(W_glob, Cmoin, N_interpol)
 
-    U = np.linalg.lstsq(op, b, rcond=None)[0]                 # Résolution de celui-ci
+    U = np.linalg.solve(op, b)
+    #U = np.linalg.lstsq(op, b, rcond=None)[0]                 # Résolution de celui-ci
     U_phys = U.reshape(-1, 2)                  # On remmmet le vecteur mis a plat en deux colones pour les deux composantes
 
     # Construction et résolution de la dérivée partielle en x de RHP
     b_x = Non_homogène_deriv_x(W_x_glob, Cmoin, N_interpol, U_phys)
 
-    U_phys_x_plat = np.linalg.lstsq(op, b_x, rcond=None)[0]
+    U_phys_x_plat = np.linalg.solve(op, b_x)
+    #U_phys_x_plat = np.linalg.lstsq(op, b_x, rcond=None)[0]
     U_phys_x = U_phys_x_plat.reshape(-1, 2)    # Ideme que pour U_phys
 
 

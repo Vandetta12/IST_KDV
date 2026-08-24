@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from Main_multi_soliton_invers_scat import Scatt_invers_multi_soliton
-from Fonction_utile import multi_soliton_phys
+from misc.Fonction_utile import multi_soliton_phys
 
 # import des donnée de scattering
 A = [2.4, 1]
@@ -21,7 +21,7 @@ A.append(v3 / 2)
 #scattering_data = np.load("Scattering_data_trois_soliton_A_[2.4, 1]_Delt_[10, 5]N_cheb_1001_N_rho_10_[-5, 5].npz", allow_pickle=True)
 scattering_data = []
 # param
-N_interpol_courb = 20
+N_interpol_courb = 100
 Nx = 200
 Nt = 200
 x_lareur = 20
@@ -101,22 +101,25 @@ indice = np.argmax(erreur_abs_x, axis=1)
 for ii in range(len(indice)):
     print(str(ii) + "Erreur absolue max x:", erreur_abs_x[ii, indice[ii]])
     print("x :", x_values[indice[ii]])
+    print("q :", q_x_num[ii, indice[ii]])
 
 indice = np.argmax(erreur_abs_t, axis=1)
 for ii in range(len(indice)):
     print(str(ii) + "Erreur absolue max t:", erreur_abs_t[ii, indice[ii]])
     print("t :", t_values[indice[ii]])
+    print("q :", q_t_num[ii, indice[ii]])
 
 indice = np.argmax(erreur_rel_x, axis=1)
 for ii in range(len(indice)):
     print(str(ii) + "Erreur relatif max x:", erreur_rel_x[ii, indice[ii]],"%")
     print("x :", x_values[indice[ii]])
+    print("q :", q_x_num[ii, indice[ii]])
 
 indice = np.argmax(erreur_rel_t, axis=1)
 for ii in range(len(indice)):
     print(str(ii) + "Erreur relatif max t:", erreur_rel_t[ii, indice[ii]],"%")
     print("t :", t_values[indice[ii]])
-
+    print("q :", q_t_num[ii, indice[ii]])
 
 plancher = np.finfo(float).eps
 

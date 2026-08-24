@@ -2,10 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sy
-from Collocation_chebychev import Cheb_point, Diff_cheb_1, residus, rho
-from Hill_eigenvalue import a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage, Matrice_Hill, Diag_et_filtre, eta_lier
-from verif import rho_verif, Pole_verif
-from Fonction_utile import fined_close_to_Fourier_in_cheb
+from methodes.Collocation_chebychev import Cheb_point, Diff_cheb_1, residus, rho
+from methodes.Hill_eigenvalue import a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage, Matrice_Hill, Diag_et_filtre, eta_lier
+from misc.verif import rho_verif, Pole_verif
+from misc.Fonction_utile import fined_close_to_Fourier_in_cheb
 
 # Corps du code
 ###############
@@ -22,7 +22,7 @@ L = 10                                                  # troncage de la droite 
 N_cheb = 201                                            # Nombre de points de collocation
 rho_points = 200
 int_rho = [-5, 5]
-X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, complex = False)
+X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, compl = False)
 D = Diff_cheb_1(N_cheb)
 print("centre :", X_cheb[N_cheb//2])
 #######################################################################################################"
@@ -31,7 +31,7 @@ print("centre :", X_cheb[N_cheb//2])
 # --------------------------
 v1 = 2.4 * 2
 # Soliton à l'instant t = 0
-Q_cheb = (v1 / 2) * (np.cosh(X_cheb) ** (-2))
+Q_cheb = -(v1 / 2) * (np.cosh(X_cheb) ** (-2))
 Q_Fourrier = (v1 / 2) * (np.cosh(X_Fourrier) ** (-2))
 
 # Calcule de rho sur la droite réelle :
