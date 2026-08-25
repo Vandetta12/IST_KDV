@@ -39,30 +39,21 @@ def grille(N ,M ):
     :param M: Nombre de point sur la grille pour la FFT
     :return: n et Y deux array
     """
-    n = np.arange(-N, N + 1)                            # indices des modes
+    n = np.arange(-N, N + 1)                           # indices des modes
     Y = 2 * np.pi * (np.arange(M) + 0.5)/M - np.pi     # Grille de points
     return n, Y
 
 
 
 def fourier_coeffs_shifted(f_vals, M):
-    """
-    Calcule hat f_k pour une grille midpoint :
-        Y_j = -pi + 2pi (j+1/2)/M
 
-    Convention : f(y) ~ sum_k hat f_k e^{i k y}
-    """
     # 1) FFT brute (sur l'index j)
     F = np.fft.fft(f_vals) / M
 
-    # 2) Les modes k associés à la FFT (entiers positifs puis négatifs)
-    k = np.fft.fftfreq(M, d=1.0/M)   # ex: [0,1,2,...,-2,-1]
-    # k est float mais ce sont des entiers représentés en float
-    # (on les convertira après le shift)
 
-    # 3) Correction due au fait que Y_j = -pi + 2pi(j+1/2)/M
-    # e^{-ikY_j} = e^{-ik(-pi)} e^{-ik*2pi(j+1/2)/M}
-    # => facteur (-1)^k * exp(-i*pi*k/M) devant la FFT.
+    k = np.fft.fftfreq(M, d=1.0/M)
+
+
     phase = np.exp(1j*np.pi*k) * np.exp(-1j*np.pi*k/M)
     F = F * phase
 
@@ -133,59 +124,3 @@ def eta_lier(vecteur_propres, Y, N):
 
 
 
-
-# Corps du code
-# Paramètres
-#N = 500                                   # Nombre de modes de Fourrier avent troncage
-#M = (2 * N + 1) * 10                      # Nombre de point sur la grille pour la FFT
-#n, Y = grille(N, M)
-#X = Changement_variables(Y)
-
-#print("Y_min, Y_max:", Y.min(), Y.max())
-#print("X_min, X_max:", X.min(), X.max())
-
-
-
-# Potentiel
-#v1 = 2.4 * 2
-#v2 = 1
-#deta = 10
-# Soliton à l'instant t = 0
-#Q = (v1 / 2) * (np.cosh((np.sqrt(v1) / 2) * (X ))) ** (-2) + (v2 / 2) * (np.cosh((np.sqrt(v2) / 2) * (X - deta))) ** (-2)
-
-# idmen, mais numériquement plus stable
-#z = np.sqrt(v1)/2 * X
-
-#t1 = np.exp(-2*np.abs(z))
-
-#Q = (v1/2) * (4*t1) / (1 + t1)**2
-
-
-# Presque soliton a t=0
-#Q = (v / 2) * (np.cosh((X - deta))) ** (-2)
-
-# Evaluation des fonctions et des TF avec FFT
-
-#eps = 1e-7
-
-#a_val = a(Y)
-#b_val = b(Y)
-#Q_val = Q.copy()
-#k_a, a_chapeau = fourier_coeffs_shifted(a_val, M)
-#k_b, b_chapeau = fourier_coeffs_shifted(b_val, M)
-#k_q, Q_chapeau = fourier_coeffs_shifted(Q_val, M)
-
-# Tronquer
-#k_restraint, a_chapeau = Fourier_troncage(k_a, a_chapeau, N)
-#_, b_chapeau = Fourier_troncage(k_b, b_chapeau, N)
-#_, Q_chapeau = Fourier_troncage(k_q, Q_chapeau, N)
-
-#H = Matrice_Hill(N, a_chapeau, b_chapeau, Q_chapeau)
-#valeurs_propres, vecteurs_propres = Diag_et_filtre(H)         # Uniquement les états lier
-#eta_lier_vecteur = eta_lier(vecteurs_propres, Y)
-
-#print("valeurs_propres:", valeurs_propres)
-#print("vecteurs_propres:", vecteurs_propres)
-
-#z_0_im = np.sqrt(-valeurs_propres)
-#print("Poles : ",z_0_im)

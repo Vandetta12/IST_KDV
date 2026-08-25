@@ -1,4 +1,4 @@
- # Import
+# Import
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.polynomial.chebyshev import chebvander
@@ -33,6 +33,11 @@ def Cheb_point(L, N, oriant = 1, bord = 2, compl = True):
 
 
 def Diff_cheb_1(N):
+    """
+    Construit l matrice de derivation sur les modes de la base de chebichev
+    :param N: nombre de modes
+    :return: un matrice de taille NxN
+    """
     D_t = np.zeros([N, N])
                                           # T_0'=0 donc on y touche pas. Par contre,
     D_t[1, 0] = 1                         # T_1'=1=T_0
@@ -52,6 +57,15 @@ def Diff_cheb_1(N):
 
 
 def system(D_1, D_2, U, u, s):
+    """
+    Fonctions calculant les matrice decrivemt les EDO etudier
+    :param D_1: matrice de derivation premiere agissant sur les valeur de la fonction
+    :param D_2: matrice de derivation seconde agissant sur les valeur de la fonction
+    :param U: matrice dont les elements de la diagonale sont les valeurs du potentielle au point de collocation
+    :param u: vecteur des valeurs du potentiels au point de collocation
+    :param s: parametre spectral
+    :return: la matrice M1, M2 et les termes non-homogenes gauche et droite
+    """
     M1 = D_2 + 2 * 1j * s * D_1 - U
     M2 = D_2 - 2 * 1j * s * D_1 - U
 
@@ -82,6 +96,68 @@ def system(D_1, D_2, U, u, s):
 
     return M1, M2, b_gauche, b_droite
 
+
+def rho(N, D_1, D_2, U, u, s):
+    """
+    Fonctions calculant le coefficient de reflexion en un point s reel
+    :param N: nombre de points de collocation et d'inerpolation
+    :param D_1: matrice de derivation premiere agissant sur les valeur de la fonction
+    :param D_2: matrice de derivation seconde
+    :param U: matrice dont les elements de la diagonale sont les valeurs du potentielle au point de collocation
+    :param u: vecteur des valeurs du potentiels au point de collocation
+    :param s: parametre spectral
+    :return: la valeur complexe de rho(s)
+    """
+    _, M2, b_g, _ = system(D_1, D_2, U, u, s)               # Construction de la matrice du système
+                                                            # et du terme non homogene pour s
+    M1_m, M2_m, b_g_m, b_d_m = system(D_1, D_2, U, u, -s)   # Construction de la matrice du système
+                                                            # et du terme non homogene pour -s
+    # résolution des systems
+    m2 = np.linalg.solve(M2, b_g) + 1                       # On ajoute directement 1 pour récupérer m et non par m tild
+
+    m1m = np.linalg.solve(M1_m, b_d_m) + 1
+    m2m = np.linalg.solve(M2_m, b_g_m) + 1
+
+    # Dérivées
+    dm2 = D_1 @ m2
+    dm1m = D_1 @ m1m
+    dm2m = D_1 @ m2m
+
+    # Calcule de l'indice du centre
+    j0 = N // 2
+
+    # Extraction des valeurs au point x0
+    m2_0 = m2[j0]
+    m1m_0 = m1m[j0]
+    m2m_0 = m2m[j0]
+
+    dm2_0 = dm2[j0]
+    dm1m_0 = dm1m[j0]
+    dm2m_0 = dm2m[j0]
+
+    # Coefficients a(s) et b(s)
+    b_coef = -(m1m_0 * dm2_0 - dm1m_0 * m2_0)                                           # déja simplifier
+    a_coef = ((m1m_0 * dm2m_0 - dm1m_0 * m2m_0) + 2 * 1j * s * (m1m_0 * m2m_0))         # déja symplifier
+    rho = b_coef / a_coef
+
+    return  rho
+
+def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
+
+    #j0 = N // 2
+    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
+    f_m = m2 * np.exp(-1j * X_cheb * s)
+
+    f_p_bar_d = f_p_bar[j0:]
+    f_m_g = f_m[:j0]
+
+    mu = []
+    for aa in range(len(X_cheb)):
+        if aa < j0 :
+            mu.append(f_m_g[aa])
+        else :
+            mu.append(f_p_bar_d[aa - j0])
+    return np.array(mu)
 
 
 def visu_mu(mu, X_cheb, m1, m2):
@@ -115,93 +191,7 @@ def visu_mu(mu, X_cheb, m1, m2):
     plt.title("m2")
     plt.show()
 
-
     return
-
-def rho(N, D_1, D_2, U, u, s):
-
-    M1, M2, b_g, b_d = system(D_1, D_2, U, u, s)
-    M1_m, M2_m, b_g_m, b_d_m = system(D_1, D_2, U, u, -s)
-
-    m1 = np.linalg.solve(M1, b_d) + 1
-    m2 = np.linalg.solve(M2, b_g) + 1
-
-    m1m = np.linalg.solve(M1_m, b_d_m) + 1
-    m2m = np.linalg.solve(M2_m, b_g_m) + 1
-
-    # Dérivées
-    dm1 = D_1 @ m1
-    dm2 = D_1 @ m2
-    dm1m = D_1 @ m1m
-    dm2m = D_1 @ m2m
-
-    # Choix du point x0
-    j0 = N // 2
-
-    x0 = 0
-
-    # Extraction des valeurs au point x0
-    m1_0 = m1[j0]
-    m2_0 = m2[j0]
-    m1m_0 = m1m[j0]
-    m2m_0 = m2m[j0]
-
-    dm1_0 = dm1[j0]
-    dm2_0 = dm2[j0]
-    dm1m_0 = dm1m[j0]
-    dm2m_0 = dm2m[j0]
-
-
-    # Coefficients a(s) et b(s)
-    b_coef = -(m1m_0 * dm2_0 - dm1m_0 * m2_0)                      # déja simplifier
-
-    a_coef = ((m1m_0 * dm2m_0 - dm1m_0 * m2m_0) + 2 * 1j * s * (m1m_0 * m2m_0))                 # déja symplifier
-    if np.abs(a_coef) ==0:
-        rho = b_coef * 0
-        print(" Warning : a_coef is close to 0. If you want b on a pole of rho ignore this warning")
-    else:
-        rho = b_coef / a_coef
-
-    return  rho
-
-def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
-
-    #j0 = N // 2
-    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
-    f_m = m2 * np.exp(-1j * X_cheb * s)
-
-    f_p_bar_d = f_p_bar[j0:]
-    f_m_g = f_m[:j0]
-
-    mu = []
-    for aa in range(len(X_cheb)):
-        if aa < j0 :
-            mu.append(f_m_g[aa])
-        else :
-            mu.append(f_p_bar_d[aa - j0])
-    return np.array(mu)
-
-
-def reconstruction_alt(X_cheb, m1, m2, b_coef, s, j0):
-
-    #j0 = N // 2
-    f_p_bar = m1 * np.exp(1j * X_cheb * s) * b_coef
-    f_m = m2 * np.exp(-1j * X_cheb * s)
-
-    centre = len(X_cheb)//2
-
-    b = f_p_bar[centre] / f_m[centre]
-    print("b", b)
-    f_p_bar_d = f_p_bar[centre:]
-    f_m_g = f_m[:centre] * b
-
-    mu = []
-    for aa in range(len(X_cheb)):
-        if aa < centre :
-            mu.append(f_m_g[aa])
-        else :
-            mu.append(f_p_bar_d[aa - j0])
-    return np.array(mu), b
 
 def Cheb_int_poid(k):
     if k % 2 ==0 :

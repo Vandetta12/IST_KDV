@@ -84,7 +84,6 @@ eta_lier_vecteur, j0 = eta_lier(vecteurs_propres, Y, N_Fourrier)
 
 
 print("valeurs_propres:", valeurs_propres)
-#print("vecteurs_propres:", vecteurs_propres)
 
 z_0_im = np.sqrt(-valeurs_propres)
 print("Poles : ",z_0_im)
