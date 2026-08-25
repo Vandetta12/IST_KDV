@@ -211,9 +211,9 @@ def cheb_int(mu,V_inv, L, exp=1):
 
 
 
-def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
+def residus( D_1, D_2, U, u, s, X_cheb, V_inv, L):
     M1, M2, b_g, b_d = system(D_1, D_2, U, u, s)
-
+    j0 = len(X_cheb) // 2
 
     m1 = np.linalg.lstsq(M1, b_d, rcond=None)[0] + 1
     m2 = np.linalg.lstsq(M2, b_g, rcond=None)[0] + 1
@@ -223,12 +223,9 @@ def residus( D_1, D_2, U, u, s, X_cheb, j0, V_inv, L):
     m1_0 = m1[j0]
     m2_0 = m2[j0]
 
-
     b_coef = (m2_0 / m1_0) * np.exp(-2 * 1j * s * X_cheb[j0])
     mu = reconstruction(X_cheb, m1, m2, b_coef, s, j0)
-    # Diagnostique
 
-    #############
     visu_mu(mu, X_cheb, m1, m2)
 
     I = cheb_int(mu, V_inv, L, exp=2)

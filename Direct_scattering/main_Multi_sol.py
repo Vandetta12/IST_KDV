@@ -80,7 +80,7 @@ _, Q_chapeau = Fourier_troncage(k_q, Q_chapeau, N_Fourrier)
 
 H = Matrice_Hill(N_Fourrier, a_chapeau, b_chapeau, Q_chapeau)
 valeurs_propres, vecteurs_propres = Diag_et_filtre(H)         # Uniquement les états lier
-eta_lier_vecteur, j0 = eta_lier(vecteurs_propres, Y, N_Fourrier)
+
 
 
 print("valeurs_propres:", valeurs_propres)
@@ -93,8 +93,7 @@ print("Poles : ",z_0_im)
 b_z_0 = []
 C_list= []
 for jj in range(len(z_0_im)):
-    j0_cheb = fined_close_to_Fourier_in_cheb(j0[jj], X_cheb, X_Fourrier)
-    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
+    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, V_inv, L)
     b_z_0.append(b_pole)
     C_list.append((1j * (b_pole ** 2)) / Integ_mu)
 
@@ -138,7 +137,7 @@ plt.show()
 
 # Sauvgarde
 
-np.savez("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "N_cheb_"+str(N_cheb)+"_N_rho_"
+np.savez("Data/Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "N_cheb_"+str(N_cheb)+"_N_rho_"
          +str(rho_points)+"_" +str(int_rho)+ ".npz" ,
          X_Fourrier=X_Fourrier, X_cheb=X_cheb, L=L, rho_points=rho_points,
          int_rho=int_rho,  Q_cheb=Q_cheb, rho_array=rho_array, z_0_im=z_0_im, C_list=C_list )

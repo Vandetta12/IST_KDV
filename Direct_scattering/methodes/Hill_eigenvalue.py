@@ -68,6 +68,48 @@ def fourier_coeffs_shifted(f_vals, M):
 
 
 def Fourier_troncage(ksym, F_chapeau, N):
+    """
+    Tronque le développement en série de fourier apporter par la FFT
+    :param ksym: les frequance des modes
+    :param F_chapeau: les cofficients de Fourier
+    :param N: Taille a tronquer
+    :return: les coeff trnquer ainsi que leur indices
+    """
     restriction = np.arange(-2*N, 2*N + 1)
     dico = {int(k): i for i, k in enumerate(ksym)}
     return restriction, np.array([F_chapeau[dico[int(k)]] for k in restriction], dtype=complex)
+
+
+def Matrice_Hill(N, a_chapeau, b_chapeau, Q_chapeau):
+    """
+    Construit la matrice H
+    :param N: parmètre du nombres de modes
+    :param a_chapeau: coefficiens de la fonctio a (array)
+    :param b_chapeau: coefficiens de la fonctio b (array)
+    :param Q_chapeau: coefficiens de la fonctio Q (array)
+    :return: ùatrice H
+    """
+    N_vect = np.arange(N,3*N + 1,1)
+    H = np.zeros((2*N + 1, 2*N + 1), dtype=complex)
+    for i in N_vect:
+        for j in N_vect:
+            H[i - N, j - N] = -((j - 2*N) ** 2) * a_chapeau[i - j + (2 * N)] + (1j * (j - 2*N)) * b_chapeau[i - j + (2 * N)] - Q_chapeau[i - j + (2 * N)]
+    return H
+
+
+def Diag_et_filtre(H):
+    """
+    On diagonalise la matrice de Hill
+    :param H: Matrice de Hill
+    :return: les valeurs prorpies et les vecteurs propre
+    """
+    # Diagonalisation
+    eigvals, eigvecs = np.linalg.eig(H)
+    # filtrage
+    mask = (np.abs(eigvals.imag) < 1e-10) & (eigvals.real < -1e-10)
+    lambda_bonne = eigvals.real[mask]
+    eigvecs_bonne = eigvecs[:, mask]
+
+    return lambda_bonne, eigvecs_bonne
+
+

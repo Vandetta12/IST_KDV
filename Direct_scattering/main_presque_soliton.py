@@ -70,10 +70,10 @@ _, Q_chapeau = Fourier_troncage(k_q, Q_chapeau, N_Fourrier)
 
 H = Matrice_Hill(N_Fourrier, a_chapeau, b_chapeau, Q_chapeau)
 valeurs_propres, vecteurs_propres = Diag_et_filtre(H)         # Uniquement les états lier
-eta_lier_vecteur, j0 = eta_lier(vecteurs_propres, Y, N_Fourrier)
+
 
 print("valeurs_propres:", valeurs_propres)
-#print("vecteurs_propres:", vecteurs_propres)
+
 
 z_0_im = np.sqrt(-valeurs_propres)
 print("Poles : ",z_0_im)
@@ -83,11 +83,10 @@ print("Poles : ",z_0_im)
 b_z_0 = []
 C_list= []
 for jj in range(len(z_0_im)):
-    j0_cheb = fined_close_to_Fourier_in_cheb(j0[jj], X_cheb, X_Fourrier)
-    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, j0_cheb, V_inv, L)
-    print("Integ_mu:", Integ_mu)
+    b_pole, Integ_mu = residus(D_1, D_2, U, Q_cheb, (z_0_im[jj] * 1j), X_cheb, V_inv, L)
     b_z_0.append(b_pole)
     C_list.append((1j * (b_pole ** 2)) / Integ_mu)
+
 print("b_z_0:", b_z_0)
 print("c_z_0:", C_list)
 
