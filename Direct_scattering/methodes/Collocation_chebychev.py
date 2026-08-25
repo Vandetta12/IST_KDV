@@ -159,39 +159,42 @@ def reconstruction(X_cheb, m1, m2, b_coef, s, j0):
             mu.append(f_p_bar_d[aa - j0])
     return np.array(mu)
 
-
 def visu_mu(mu, X_cheb, m1, m2):
+    idx_max = np.argmax(np.abs(mu))
+    x_max = X_cheb[idx_max]
 
-    plt.plot(X_cheb, np.real(mu), label="mu Re")
-    plt.plot(X_cheb, np.imag(mu), label="mu Im")
-    plt.legend()
-    plt.grid()
-    plt.show()
+    fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+    axs[0, 0].plot(X_cheb, np.real(mu), lw=2, label=r'Re$(\bar{f}_+)$')
+    axs[0, 0].plot(X_cheb, np.imag(mu), lw=2, label=r'Im$(\bar{f}_+)$')
+    axs[0, 0].set_title(r'$\bar{f}_+$ (global)')
+    axs[0, 0].grid(alpha=0.3)
+    axs[0, 0].legend()
 
-    indice_max=np.argmax(np.abs(mu))
-    X_max = X_cheb[indice_max]
-    plt.plot(X_cheb, np.real(mu), label="mu Re")
-    plt.plot(X_cheb, np.imag(mu), label="mu Im")
-    plt.legend()
-    #plt.yscale('symlog', linthresh=1e-10)
-    #plt.ylim(-10, 10)
-    plt.xlim(X_max - 10, X_max + 10)
-    plt.grid()
-    plt.show()
+    axs[0, 1].plot(X_cheb, np.real(mu), lw=2)
+    axs[0, 1].plot(X_cheb, np.imag(mu), lw=2)
+    axs[0, 1].set_xlim(x_max - 10, x_max + 10)
+    axs[0, 1].set_title(r'$\bar{f}_+$ (zoom)')
+    axs[0, 1].grid(alpha=0.3)
 
-    plt.plot(X_cheb, np.real(m1), label="m1 Re")
-    plt.plot(X_cheb, np.imag(m1), label="m1 Im")
-    plt.legend()
-    plt.title("m1")
-    plt.show()
+    axs[1, 0].plot(X_cheb, np.real(m1), lw=2, label='Re')
+    axs[1, 0].plot(X_cheb, np.imag(m1), lw=2, label='Im')
+    axs[1, 0].set_title(r'$m_1$')
+    axs[1, 0].grid(alpha=0.3)
+    axs[1, 0].legend()
 
-    plt.plot(X_cheb, np.real(m2), label="m1 Re")
-    plt.plot(X_cheb, np.imag(m2), label="m1 Im")
-    plt.legend()
-    plt.title("m2")
+    axs[1, 1].plot(X_cheb, np.real(m2), lw=2, label='Re')
+    axs[1, 1].plot(X_cheb, np.imag(m2), lw=2, label='Im')
+    axs[1, 1].set_title(r'$m_2$')
+    axs[1, 1].grid(alpha=0.3)
+    axs[1, 1].legend()
+
+    plt.tight_layout()
     plt.show()
 
     return
+
+
+
 
 def Cheb_int_poid(k):
     if k % 2 ==0 :

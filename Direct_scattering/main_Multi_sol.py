@@ -21,7 +21,7 @@ X_Fourrier = Changement_variables(Y)
 # Chebichev  (Fonction rho)
 L = 50                                                 # troncage de la droite pour chebychev
 N_cheb = 1001                                          # Nombre de points de collocation
-rho_points = 10
+rho_points = 200
 int_rho = [-5, 5]
 X_cheb, V = Cheb_point(L, N_cheb , oriant = 1, bord = 0, compl = False)
 D = Diff_cheb_1(N_cheb)
@@ -31,8 +31,8 @@ D = Diff_cheb_1(N_cheb)
 
 # définition du potentiel
 # --------------------------
-A = [2.4, 1]
-delta = [10, 5]
+A = [2.4, 1, 5]
+delta = [10, 5, 1]
 
 
 
@@ -129,7 +129,7 @@ plt.show()
 u_reconst = multi_soliton_scat_data(z_0_im, np.imag(C_list), X_cheb, 0)
 
 
-plt.plot(X_cheb, Q_cheb , color='green', label='Potentiel initial')
+plt.plot(X_cheb, -Q_cheb , color='green', label='Potentiel initial')
 plt.plot(X_cheb, u_reconst, color='red', label='Calc', linestyle='--')
 plt.xlim(-30, 30)
 plt.legend()
@@ -137,7 +137,7 @@ plt.show()
 
 # Sauvgarde
 
-np.savez("Data/Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "N_cheb_"+str(N_cheb)+"_N_rho_"
+np.savez("Scattering_data_trois_soliton_A_" + str(A) + "_Delt_" + str(delta) + "N_cheb_"+str(N_cheb)+"_N_rho_"
          +str(rho_points)+"_" +str(int_rho)+ ".npz" ,
          X_Fourrier=X_Fourrier, X_cheb=X_cheb, L=L, rho_points=rho_points,
          int_rho=int_rho,  Q_cheb=Q_cheb, rho_array=rho_array, z_0_im=z_0_im, C_list=C_list )

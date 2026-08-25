@@ -8,7 +8,7 @@ from misc.Mobius_mpas import (Mobius_interval_ab, Mobius_strech_ray,
                          Mobius_general_der, Mobius_inf, Jacouwski, Mobius_compositions, Inv_Mobius_coef,
                          Inv_Jacouwski_bas, Inv_Jacouwski_haut, Inv_Jacouwski_moin, Inv_Jacouwski_plus)
 from misc.Fonction_utile import Delta
-from Contours import Decupage_U
+from Inv_scattering.methodes.Contours import Decupage_U
 
 
 

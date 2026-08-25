@@ -48,15 +48,15 @@ q_t_col_plus = np.zeros(Nt, dtype=complex)
 
 for ii in range(Nx):
     print(ii)
-    q_x_col_moin[ii], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_moins, scattering_data)
-    q_x_col_centre[ii], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_x, scattering_data)
-    q_x_col_plus[ii], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_plus, scattering_data)
+    q_x_col_moin[ii], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_moins, scattering_data)
+    q_x_col_centre[ii], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_x, scattering_data)
+    q_x_col_plus[ii], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_values[ii], t_plus, scattering_data)
 
 for jj in range(Nt):
     print(jj)
-    q_t_col_moin[jj], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_moins, t_values[jj],  scattering_data)
-    q_t_col_centre[jj], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A,delta, x_t, t_values[jj],  scattering_data)
-    q_t_col_plus[jj], _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A,delta, x_plus, t_values[jj],  scattering_data)
+    q_t_col_moin[jj], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x_moins, t_values[jj],  scattering_data)
+    q_t_col_centre[jj], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A,delta, x_t, t_values[jj],  scattering_data)
+    q_t_col_plus[jj], _, _, _ = Scatt_invers_multi_soliton(N_interpol_courb, A,delta, x_plus, t_values[jj],  scattering_data)
 
 
 

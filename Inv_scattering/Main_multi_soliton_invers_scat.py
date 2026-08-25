@@ -7,6 +7,7 @@ from methodes.Cauchy_transform import C_moin_assambalge_borne, Operateur, Non_ho
 from misc.Fonction_utile import multi_soliton_phys, conv_amp_defa_to_pole_norm
 
 
+
 def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data, sauvgarde = False):
     #print("x :", x)
     #print("t :", t)
@@ -99,9 +100,9 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
     #print("q_x :", q_x)
 
     # Verification
-    #q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
+    q_theorique = multi_soliton_phys(A, delta, np.array([x]), t)
     #print("q_theorique :", q_theorique[0])
-    #err_abs = abs(q_x - q_theorique)
+    err_abs = abs(q_x - q_theorique)
     #print("Erreur abs:", err_abs)
     #print("Erreur :", np.abs(q_theorique[0] - q_x) / np.abs(q_theorique[0]) * 100, "%")
 
@@ -113,7 +114,9 @@ def Scatt_invers_multi_soliton(N_interpol_courb, A, delta, x, t,scattering_data,
              A=A, delta=delta, X_glob=X_glob, dico=liste_dico, U_phys=U_phys, U_phys_x=U_phys_x, z_list=z_0_im)
 
 
-    return q_x, U_phys, U_phys_x
+    return q_x, U_phys, U_phys_x, err_abs
+
+
 
 
 

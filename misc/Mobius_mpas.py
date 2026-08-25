@@ -2,7 +2,7 @@
 from ftplib import error_perm
 import numpy as np
 import matplotlib.pyplot as plt
-from Collocation_chebychev import Cheb_point
+from Direct_scattering.methodes.Collocation_chebychev import Cheb_point
 
 # Fonctions
 

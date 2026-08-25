@@ -94,7 +94,7 @@ print("c_z_0:", C_list)
 # verification
 A = v1 / 2
 Pol_verif_array = Pole_verif(A)
-rho_verif_array = rho_verif(A, S)
+rho_verif_array = rho_verif(A, -S)
 for jj in range(min(len(Pol_verif_array), len(z_0_im))):
     print("Pol_verif_array:", Pol_verif_array[jj])
     print("Pole", z_0_im[jj])
@@ -120,9 +120,4 @@ plt.show()
 plt.plot(S, np.imag(Error), color='blue', label='Err imag')
 plt.show()
 
-plt.plot(X_Fourrier, Q_Fourrier, color='green', label='Th')
-#plt.plot(X_Fourrier, Q_Fourrier_verif, color='red', label='Calc', linestyle='--')
-plt.xlim(-30, 30)
-plt.legend()
-plt.show()
 
