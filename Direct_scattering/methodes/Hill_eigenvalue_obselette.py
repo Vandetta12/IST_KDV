@@ -95,6 +95,8 @@ def Diag_et_filtre(H):
 
     return lambda_bonne, eigvecs_bonne
 
+
+
 def eta_lier(vecteur_propres, Y, N):
     """
     reconstruit les états lier à partir des vecteurs propre de l'opérateu réduit sur l'intervalle -pi pi

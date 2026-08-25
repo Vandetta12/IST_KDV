@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sy
 from methodes.Collocation_chebychev import Cheb_point, Diff_cheb_1, residus, rho
-from methodes.Hill_eigenvalue import a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage, Matrice_Hill, Diag_et_filtre, eta_lier
+from methodes.Hill_eigenvalue_obselette import a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage, Matrice_Hill, Diag_et_filtre, eta_lier
 from misc.verif import rho_verif, Pole_verif
 from misc.Fonction_utile import fined_close_to_Fourier_in_cheb
 

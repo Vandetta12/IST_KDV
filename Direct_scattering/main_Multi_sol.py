@@ -2,8 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from methodes.Collocation_chebychev import Cheb_point, Diff_cheb_1, residus, rho
-from methodes.Hill_eigenvalue import (a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage,
-                                      Matrice_Hill, Diag_et_filtre, eta_lier)
+from methodes.Hill_eigenvalue_obselette import (a, b , Changement_variables, grille, fourier_coeffs_shifted, Fourier_troncage,
+                                                Matrice_Hill, Diag_et_filtre, eta_lier)
 from misc.Fonction_utile import (fined_close_to_Fourier_in_cheb, conv_pole_norm_to_amp_defa,
                                  multi_soliton_scat_data, multi_soliton_phys, try_pole)
 
